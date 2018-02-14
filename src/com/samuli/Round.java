@@ -80,6 +80,9 @@ public class Round {
         // Choose one of them
         if (highestGames.size() == 0) {
             System.out.println("highestGames.size() == 0 " + errorsByGame);
+            for (int i = 0; i < errorsByGame.length; i++) {
+                System.out.println(errorsByGame[i]);
+            }
         }
         Integer chosenId = highestGames.size() == 1 ? highestGames.get(0) : highestGames.get(Globals.randomGen.nextInt(highestGames.size()));
         Game chosenGame = games.get(chosenId);

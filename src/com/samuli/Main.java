@@ -13,6 +13,8 @@ public class Main {
         for (int i = 0; i < populations.length; i++) {
             populations[i] = makePopulation();
         }
+        double lowestError = Double.MAX_VALUE;
+        int lowestRound = 0;
 
         //populations[0].print();
         for (int roundNr = 0; roundNr < Constants.ROUND_AMOUNT; roundNr++) {
@@ -24,12 +26,25 @@ public class Main {
 
             // Mutate
             GameRoundPair game = populations[0].getRandomGame();
-            
-            populations[0].move(populations[0].getRandomGame());
+            Round newRound = populations[0].findBestRoundForGame(game.game, game.round);
+            double oldError = populations[0].getTotalError();
+            Population p = populations[0];
+            p.removeGame(game.round, game.game);
+            p.addGame(newRound, game.game);
+            double newError = p.getTotalError();
+            if ((newError > oldError && sa.accept()) == false) {
+                p.removeGame(newRound, game.game);
+                p.addGame(game.round, game.game);
+            }
 
             // TODO: Make use of the population
-            System.out.println("Roundnr: " + roundNr + " total error: " + populations[0].getTotalError());
+            if (p.getTotalError() < lowestError) {
+                lowestError = p.getTotalError();
+                lowestRound = roundNr;
+            }
+            //System.out.println("Roundnr: " + roundNr + " total error: " + populations[0].getTotalError());
         }
+        System.out.println("lowestError " + lowestError + ", round: " + lowestRound);
         System.out.println("------------------End-------------");
         //populations[0].print();
     }

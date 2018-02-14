@@ -50,7 +50,7 @@ public class Population {
         addGame(newRound, gameToMove.game);
     }
 
-    private Round findBestRoundForGame(Game g, Round roundToSkip) {
+    public Round findBestRoundForGame(Game g, Round roundToSkip) {
         double minError = Double.MAX_VALUE;
         ArrayList<Round> minRounds = new ArrayList<>();
         for (Round r : rounds) {
