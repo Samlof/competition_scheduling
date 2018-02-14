@@ -7,6 +7,7 @@ public class Main {
 
     public static void main(String[] args) {
         makeGamesAndRounds();
+        SA sa = new SA();
 
         Population[] populations = new Population[Constants.POPULATION_COUNT];
         for (int i = 0; i < populations.length; i++) {
@@ -15,12 +16,18 @@ public class Main {
 
         //populations[0].print();
         for (int roundNr = 0; roundNr < Constants.ROUND_AMOUNT; roundNr++) {
-            // First move a random game
-            populations[0].move(populations[0].getRandomGame());
+            // Develop solution
             for (int betteringRounds = 0; betteringRounds < Constants.BETTERING_ROUNDS; betteringRounds++) {
-                // Move the worst scored game 8 times
+                // Move the worst scored game BETTERING_ROUNDS times
                 populations[0].move(populations[0].findGameToMove());
             }
+
+            // Mutate
+            GameRoundPair game = populations[0].getRandomGame();
+            
+            populations[0].move(populations[0].getRandomGame());
+
+            // TODO: Make use of the population
             System.out.println("Roundnr: " + roundNr + " total error: " + populations[0].getTotalError());
         }
         System.out.println("------------------End-------------");
