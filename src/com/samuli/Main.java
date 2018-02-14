@@ -23,7 +23,7 @@ public class Main {
             }
             System.out.println("Roundnr: " + roundNr + " total error: " + populations[0].getTotalError());
         }
-
+        System.out.println("------------------End-------------");
         //populations[0].print();
     }
 
@@ -65,8 +65,8 @@ public class Main {
             }
         }
 
-        // Teema 1 has 12 * 2 = 24 rounds
-        for (int j = 0; j < 24; j++) {
+        // Teema 1 has (12 - 1) * 2 = 22 rounds
+        for (int j = 0; j < 22; j++) {
             baseRounds.add(new Round());
         }
 

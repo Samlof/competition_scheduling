@@ -78,7 +78,8 @@ public class Round {
             if (errorsByGame[i] == highest) highestGames.add(i);
         }
         // Choose one of them
-        Game chosenGame = games.size() == 1 ? games.get(0) : games.get(highestGames.get(Globals.randomGen.nextInt(highestGames.size())));
+        Integer chosenId = highestGames.size() == 1 ? highestGames.get(0) : highestGames.get(Globals.randomGen.nextInt(highestGames.size()));
+        Game chosenGame = games.get(chosenId);
 
         return new GameRoundPair(
                 chosenGame,
@@ -88,10 +89,7 @@ public class Round {
 
     public String description() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Total games: " + games.size() + "\n");
-        for (Game game : games) {
-            sb.append(game.description() + "\n");
-        }
+        sb.append("Total games: " + games.size() + ", Total error: " + getTotalErrors() + "\n");
         return sb.toString();
     }
 }
