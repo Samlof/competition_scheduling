@@ -7,7 +7,6 @@ public class Main {
 
     public static void main(String[] args) {
         makeGamesAndRounds();
-        SA sa = new SA();
 
         Population[] populations = new Population[Constants.POPULATION_COUNT];
         for (int i = 0; i < populations.length; i++) {
@@ -17,12 +16,13 @@ public class Main {
         int lowestRound = 0;
 
         //populations[0].print();
-        for (int roundNr = 0; roundNr < Constants.ROUND_AMOUNT; roundNr++) {
+        for (int roundNr = 0; roundNr < Constants.LOOP_AMOUNT; roundNr++) {
             // Develop solution
             for (int betteringRounds = 0; betteringRounds < Constants.BETTERING_ROUNDS; betteringRounds++) {
                 // Move the worst scored game BETTERING_ROUNDS times
                 populations[0].move(populations[0].findGameToMove());
             }
+            Globals.sa.calcNewProb();
 
             // Mutate
             GameRoundPair game = populations[0].getRandomGame();
@@ -32,21 +32,24 @@ public class Main {
             p.removeGame(game.round, game.game);
             p.addGame(newRound, game.game);
             double newError = p.getTotalError();
-            if ((newError > oldError && sa.accept()) == false) {
+            if ((newError > oldError && Globals.sa.accept()) == false) {
                 p.removeGame(newRound, game.game);
                 p.addGame(game.round, game.game);
             }
 
             // TODO: Make use of the population
+
+
+            // Save the best round
             if (p.getTotalError() < lowestError) {
                 lowestError = p.getTotalError();
                 lowestRound = roundNr;
+                // TODO: Save it!
             }
             //System.out.println("Roundnr: " + roundNr + " total error: " + populations[0].getTotalError());
         }
         System.out.println("lowestError " + lowestError + ", round: " + lowestRound);
         System.out.println("------------------End-------------");
-        //populations[0].print();
     }
 
 

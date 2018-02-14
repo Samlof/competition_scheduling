@@ -10,7 +10,7 @@ public class SA {
     private double decrInProb;
 
     SA() {
-        markov = Constants.ROUND_AMOUNT / Constants.SA_UPDATE_INTERVAL;
+        markov = Constants.LOOP_AMOUNT / Constants.SA_UPDATE_INTERVAL;
         decrInProb = (START_PROB - END_PROB) / Constants.SA_UPDATE_INTERVAL;
         runningProb = START_PROB;
     }
