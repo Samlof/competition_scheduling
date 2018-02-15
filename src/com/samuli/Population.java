@@ -31,6 +31,10 @@ public class Population {
 
     public GameRoundPair getRandomGame() {
         Round round = rounds.get(Globals.randomGen.nextInt(rounds.size()));
+        // In case the round we got has 0 games in it. Then random another one
+        while (round.games.size() == 0) {
+            round = rounds.get(Globals.randomGen.nextInt(rounds.size()));
+        }
         return new GameRoundPair(round.getRandomGame(), round);
     }
 
