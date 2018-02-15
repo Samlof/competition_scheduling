@@ -4,10 +4,11 @@ public class SA {
     private final double START_PROB = 1.00;
     private final double END_PROB = 0.00;
 
-    private int markov;
+    private final int markov;
+    private final double decrInProb;
+
     private int called;
     private double runningProb;
-    private double decrInProb;
 
     SA() {
         markov = Constants.LOOP_AMOUNT / Constants.SA_UPDATE_INTERVAL;

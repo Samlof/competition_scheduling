@@ -12,26 +12,30 @@ public class Main {
         for (int i = 0; i < populations.length; i++) {
             populations[i] = makePopulation();
         }
+
         double lowestError = Double.MAX_VALUE;
         int lowestRound = 0;
+        Population lowestPop = null;
 
         //populations[0].print();
         for (int roundNr = 0; roundNr < Constants.LOOP_AMOUNT; roundNr++) {
             // Develop solution
             for (int betteringRounds = 0; betteringRounds < Constants.BETTERING_ROUNDS; betteringRounds++) {
                 // Move the worst scored game BETTERING_ROUNDS times
-                populations[0].move(populations[0].findGameToMove());
+                populations[0].develop();
             }
             Globals.sa.calcNewProb();
 
             // Mutate
-            GameRoundPair game = populations[0].getRandomGame();
-            Round newRound = populations[0].findBestRoundForGame(game.game, game.round);
-            double oldError = populations[0].getTotalError();
+            // Move this inside Population as method?
             Population p = populations[0];
+            double oldError = p.getTotalError();
+            GameRoundPair game = p.getRandomGame();
+            Round newRound = p.findBestRoundForGame(game.game, game.round);
             p.removeGame(game.round, game.game);
             p.addGame(newRound, game.game);
             double newError = p.getTotalError();
+            // If the move made the solution worse, check SA whether to cancel it
             if ((newError > oldError && Globals.sa.accept()) == false) {
                 p.removeGame(newRound, game.game);
                 p.addGame(game.round, game.game);
@@ -45,6 +49,7 @@ public class Main {
                 lowestError = p.getTotalError();
                 lowestRound = roundNr;
                 // TODO: Save it!
+                lowestPop = new Population(p.rounds);
             }
             //System.out.println("Roundnr: " + roundNr + " total error: " + populations[0].getTotalError());
         }
@@ -57,21 +62,13 @@ public class Main {
     private static ArrayList<Round> baseRounds = new ArrayList<>();
 
     private static Population makePopulation() {
-        // Create the populations
-
-        // Create rounds
-        ArrayList<Round> rounds = new ArrayList<>();
-        for (Round r : baseRounds) {
-            rounds.add(r.clone());
-        }
-
-
+        Population output = new Population(baseRounds);
         // Add the games to a random round
         for (Game game : games) {
-            Round round = rounds.get(Globals.randomGen.nextInt(rounds.size()));
-            round.addGame(game);
+            Round round = output.rounds.get(Globals.randomGen.nextInt(output.rounds.size()));
+            output.addGame(round, game);
         }
-        return new Population(rounds);
+        return output;
     }
 
     private static void makeGamesAndRounds() {
@@ -90,11 +87,12 @@ public class Main {
             }
         }
 
+        // Create empty rounds
         // Teema 1 has (12 - 1) * 2 = 22 rounds
         for (int j = 0; j < 22; j++) {
             baseRounds.add(new Round());
         }
 
-        // Add bound games into baseRounds here
+        // TODO: handle bound games
     }
 }

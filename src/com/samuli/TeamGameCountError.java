@@ -3,13 +3,11 @@ package com.samuli;
 import java.util.ArrayList;
 
 public class TeamGameCountError {
-
-
     private int[] teamGameCounts;
     private int totalGameErrors;
     private int[] errorsByTeam;
     // This should be a reference to Round::games list. Don't edit it from this class!
-    private ArrayList<Game> games;
+    private final ArrayList<Game> games;
 
     public TeamGameCountError(ArrayList<Game> pGames) {
         games = pGames;
@@ -70,6 +68,18 @@ public class TeamGameCountError {
         return Constants.HARD_ERROR * Constants.GAME_COUNT_ERROR * totalGameErrors;
     }
 
+    public double[] getErrorsByGame() {
+        // Round uses the same games list, the order will be same, so i works as a unique identifier for a game
+        double[] output = new double[games.size()];
+        for (int i = 0; i < games.size(); i++) {
+            Game game = games.get(i);
+            output[i] = errorsByTeam[game.home.id] + errorsByTeam[game.guest.id];
+            output[i] *= Constants.HARD_ERROR * Constants.GAME_COUNT_ERROR;
+        }
+        return output;
+    }
+
+    // For debugging
     public boolean check() {
         for (int i = 0; i < teamGameCounts.length; i++) {
             int c = teamGameCounts[i];
@@ -101,16 +111,5 @@ public class TeamGameCountError {
             return false;
         }
         return true;
-    }
-
-    public double[] getErrorsByGame() {
-        // Round uses the same games list, the order will be same, so i works as a unique identifier for a game
-        double[] output = new double[games.size()];
-        for (int i = 0; i < games.size(); i++) {
-            Game game = games.get(i);
-            output[i] = errorsByTeam[game.home.id] + errorsByTeam[game.guest.id];
-            output[i] *= Constants.HARD_ERROR * Constants.GAME_COUNT_ERROR;
-        }
-        return output;
     }
 }

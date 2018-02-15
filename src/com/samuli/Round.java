@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 
 public class Round {
-    ArrayList<Game> games;
-    TeamGameCountError teamGameCountError;
+    public final ArrayList<Game> games;
+    private final TeamGameCountError teamGameCountError;
 
     public Round() {
         games = new ArrayList<>();
@@ -13,19 +13,13 @@ public class Round {
         teamGameCountError = new TeamGameCountError(games);
     }
 
-    public Round clone() {
-        Round r = new Round();
-        for (Game g : games) {
-            r.addGame(g);
-        }
-        return r;
-    }
-
+    // This should only be called from Population.addGame!
     public void addGame(Game game) {
         games.add(game);
         teamGameCountError.addGame(game);
     }
 
+    // This should only be called from Population.removeGame!
     public void removeGame(Game game) {
         if (games.remove(game) == false) {
             // If the game didn't exist

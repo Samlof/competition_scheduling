@@ -3,15 +3,23 @@ package com.samuli;
 import java.util.ArrayList;
 
 public class Population {
-    private ArrayList<Round> rounds;
-    private TabuList tabuList;
+    public final ArrayList<Round> rounds;
+    private final TabuList tabuList;
 
     public Population(ArrayList<Round> pRounds) {
-        rounds = new ArrayList<>(pRounds);
+        // Clones the given rounds array
+        rounds = new ArrayList<>();
+        for (int i = 0; i < pRounds.size(); i++) {
+            rounds.add(new Round());
+            for (Game g : pRounds.get(i).games) {
+                addGame(rounds.get(i), g);
+            }
+        }
+
         tabuList = new TabuList();
     }
 
-    public GameRoundPair findGameToMove() {
+    private GameRoundPair findGameToMove() {
         GameRoundPair max = getRandomGame();
         max.error = 0;
         for (Round round : rounds) {
@@ -42,7 +50,8 @@ public class Population {
         r.removeGame(g);
     }
 
-    public void move(GameRoundPair gameToMove) {
+    public void develop() {
+        GameRoundPair gameToMove = findGameToMove();
         removeGame(gameToMove.round, gameToMove.game);
         tabuList.addTabu(gameToMove.round, gameToMove.game);
 
@@ -69,7 +78,12 @@ public class Population {
 
             removeGame(r, g);
         }
-        //System.out.println(minRounds.size());
+
+        // if minRounds is empty, it'll crash. Won't happen for now but maybe sometimes
+        if (minRounds.size() == 0) {
+            System.out.println("Population.findBestRoundForGame had minRounds size of 0");
+        }
+
         // If there is only one, return it. If multiple random one
         return minRounds.size() == 1 ? minRounds.get(0)
                 : minRounds.get(Globals.randomGen.nextInt(minRounds.size()));
