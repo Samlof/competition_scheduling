@@ -48,13 +48,15 @@ public class Main {
             if (p.getTotalError() < lowestError) {
                 lowestError = p.getTotalError();
                 lowestRound = roundNr;
-                // TODO: Save it!
                 lowestPop = new Population(p.rounds);
+
+                System.out.println("Roundnr: " + roundNr + " total error: " + populations[0].getTotalError());
+                if (p.getTotalError() == 0) break;
             }
-            //System.out.println("Roundnr: " + roundNr + " total error: " + populations[0].getTotalError());
         }
-        System.out.println("lowestError " + lowestError + ", round: " + lowestRound);
         System.out.println("------------------End-------------");
+
+        // TODO: Save the lowest answer to file
     }
 
 
