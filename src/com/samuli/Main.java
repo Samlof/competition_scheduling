@@ -1,6 +1,7 @@
 package com.samuli;
 
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class Main {
@@ -54,9 +55,43 @@ public class Main {
                 if (p.getTotalError() == 0) break;
             }
         }
-        System.out.println("------------------End-------------");
+        System.out.println("------------------End------------------");
 
-        // TODO: Save the lowest answer to file
+        saveToFile(lowestPop);
+
+        System.out.println("Result saved to file output.txt");
+    }
+
+    private static void saveToFile(Population p) {
+        PrintWriter writer;
+        try {
+
+            writer = new PrintWriter("output.txt");
+        } catch (java.io.FileNotFoundException e) {
+            // Should not get here, as PrintWriter will create the file if not found
+            System.out.println("Error! Stopping saving! File output.txt not found. Message: " + e.getLocalizedMessage());
+            return;
+        }
+        // Eka rivi: kaikki_virheet hard_virheet soft_virheet (esim. 5 0 5)
+        writer.print((p.getHardError() + p.getSoftError()) + " ");
+        writer.print(p.getHardError() + " ");
+        writer.println(p.getSoftError());
+
+        // Toka rivi: pelatut_virheet kotiesto_virheet vierasesto_virheet break_virheet (esim. 0 0 0 5)
+        writer.print(p.getTeamCountError() + " ");
+        writer.print("0" + " ");
+        writer.print("0" + " ");
+        writer.println("0");
+
+        // Loput rivit: kierros koti_joukkue vieras_joukkue lukittu_kierrokselle_ei_tai_joo (esim. 1 10 1 joo ja 3 9 6 ei)
+        for (int i = 0; i < p.rounds.size(); i++) {
+            Round r = p.rounds.get(i);
+            for (Game g : r.games) {
+                writer.println(i + " " + g.home.id + " " + g.guest.id + " " + (g.bound ? "joo" : "ei"));
+            }
+        }
+
+        writer.close();
     }
 
 

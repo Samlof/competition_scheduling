@@ -50,6 +50,30 @@ public class Population {
         r.addGame(g);
     }
 
+    public int getSoftError() {
+        int total = 0;
+        for (Round r : rounds) {
+            total += r.getSoftErrors();
+        }
+        return total;
+    }
+
+    public int getHardError() {
+        int total = 0;
+        for (Round r : rounds) {
+            total += r.getHardErrors();
+        }
+        return total;
+    }
+
+    public int getTeamCountError() {
+        int total = 0;
+        for (Round r : rounds) {
+            total += r.getTeamCountError();
+        }
+        return total;
+    }
+
     public void removeGame(Round r, Game g) {
         r.removeGame(g);
     }

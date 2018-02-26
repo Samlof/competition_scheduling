@@ -48,7 +48,7 @@ public class Round {
 
         double[] gameCountErrors = teamGameCountError.getErrorsByGame();
         for (int i = 0; i < games.size(); i++) {
-            errorsByGame[i] += gameCountErrors[i];
+            errorsByGame[i] += gameCountErrors[i] * Constants.GAME_COUNT_ERROR * Constants.HARD_ERROR;
         }
 
         return chooseGameFromErrorArray(errorsByGame);
@@ -56,10 +56,24 @@ public class Round {
 
     public double getTotalErrors() {
         double error = 0;
-        error += teamGameCountError.getTotalErrors();
+        error += teamGameCountError.getTotalErrors() * Constants.GAME_COUNT_ERROR * Constants.HARD_ERROR;
         return error;
     }
 
+    public int getTeamCountError() {
+        return teamGameCountError.getTotalErrors();
+    }
+
+    public int getHardErrors() {
+        int total = 0;
+        total += teamGameCountError.getTotalErrors();
+        return total;
+    }
+
+    public int getSoftErrors() {
+        int total = 0;
+        return total;
+    }
 
     private GameRoundPair chooseGameFromErrorArray(double[] errorsByGame) {
         // Find highest error

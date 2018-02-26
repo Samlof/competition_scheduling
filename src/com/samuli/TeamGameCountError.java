@@ -64,8 +64,8 @@ public class TeamGameCountError {
         teamGameCounts[id]--;
     }
 
-    public double getTotalErrors() {
-        return Constants.HARD_ERROR * Constants.GAME_COUNT_ERROR * totalGameErrors;
+    public int getTotalErrors() {
+        return totalGameErrors;
     }
 
     public double[] getErrorsByGame() {
@@ -74,7 +74,6 @@ public class TeamGameCountError {
         for (int i = 0; i < games.size(); i++) {
             Game game = games.get(i);
             output[i] = errorsByTeam[game.home.id] + errorsByTeam[game.guest.id];
-            output[i] *= Constants.HARD_ERROR * Constants.GAME_COUNT_ERROR;
         }
         return output;
     }
