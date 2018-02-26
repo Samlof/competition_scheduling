@@ -87,7 +87,8 @@ public class Main {
         for (int i = 0; i < p.rounds.size(); i++) {
             Round r = p.rounds.get(i);
             for (Game g : r.games) {
-                writer.println(i + " " + g.home.id + " " + g.guest.id + " " + (g.bound ? "joo" : "ei"));
+                // Add 1 to ids, because my ids start from 0. Expected file starts from 1
+                writer.println((i + 1) + " " + (g.home.id + 1) + " " + (g.guest.id + 1) + " " + (g.bound ? "joo" : "ei"));
             }
         }
 
@@ -131,5 +132,6 @@ public class Main {
         }
 
         // TODO: handle bound games
+        // Remember to subtract 1 from ids. My ids start from 0, input file starts from 1
     }
 }
