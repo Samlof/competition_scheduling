@@ -189,9 +189,9 @@ public class Main {
             // Parse id's into Team objects
             String[] teamIds = constraints.get(index).split(" ");
             int team1id = Integer.parseInt(teamIds[0]) - 1;
-            int team2id = Integer.parseInt(teamIds[1]) - 1;
-            Team team1 = Team.get(team1id);
-            Team team2 = Team.get(team2id);
+            int roundid = Integer.parseInt(teamIds[1]) - 1;
+            Team team = Team.get(team1id);
+            Round r = baseRounds.get(roundid);
 
             // TODO:
             index++;
@@ -203,9 +203,9 @@ public class Main {
             // Parse id's into Team objects
             String[] teamIds = constraints.get(index).split(" ");
             int team1id = Integer.parseInt(teamIds[0]) - 1;
-            int team2id = Integer.parseInt(teamIds[1]) - 1;
-            Team team1 = Team.get(team1id);
-            Team team2 = Team.get(team2id);
+            int roundid = Integer.parseInt(teamIds[1]) - 1;
+            Team team = Team.get(team1id);
+            Round r = baseRounds.get(roundid);
 
             // TODO:
             index++;
