@@ -2,7 +2,10 @@ package com.samuli;
 
 
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
@@ -110,25 +113,82 @@ public class Main {
     }
 
     private static void makeGamesAndRounds() {
+        List<String> constraints;
+        try {
+
+            constraints = Files.readAllLines(Paths.get("Constaints.txt"));
+        } catch (Exception e) {
+            System.out.println("No Constaints.txt file found!");
+            constraints = null;
+            return;
+        }
+        if (constraints == null) return;
+
+        // Read some options
+        int index = 0;
+        while (constraints.get(index).equals("#number of teams") == false) index++;
+        int teamCounts = Integer.parseInt(constraints.get(index + 1));
+        while (constraints.get(index).equals("#number of round robins (RR)") == false) index++;
+        int RRCount = Integer.parseInt(constraints.get(index + 1));
+        while (constraints.get(index).equals("#number of rounds") == false) index++;
+        int roundCount = Integer.parseInt(constraints.get(index + 1));
+
         // Create teams
-        // Teema 1 has 12 teams
-        for (int i = 0; i < 12; i++) {
-            Team a = new Team("" + i);
+        while (constraints.get(index).equals("#team names") == false) index++;
+        index++;
+        for (int i = 0; i < teamCounts; i++) {
+            Team a = new Team(constraints.get(index + i));
         }
 
-        // Create games from teams for 2RR
+        // Create games from teams for RR
         ArrayList<Team> teams = Team.teams;
-        for (Team team1 : teams) {
-            for (Team team2 : teams) {
-                if (team1 == team2) continue;
-                games.add(new Game(team1, team2));
+
+        while (RRCount > 1) {
+            for (Team team1 : teams) {
+                for (Team team2 : teams) {
+                    if (team1 == team2) continue;
+                    games.add(new Game(team1, team2));
+                }
             }
+            RRCount -= 2;
+        }
+        // If there is one more round of games
+        if (RRCount == 1) {
+            // TODO: Not needed for Teema since it's always 2
+        }
+
+        // Create additional games
+        while (constraints.get(index).equals("#additional games") == false) index++;
+        index++;
+        while (constraints.get(index).equals("#weekdays for rounds (1 = mon, 2 = tue, …) and 1 means a consecutive calendar day, 0 not") == false) {
+            int team1 = Integer.parseInt(String.valueOf((constraints.get(index).charAt(0))));
+            int team2 = Integer.parseInt(String.valueOf((constraints.get(index).charAt(3))));
+            // My id's are from 0, file id's from 1, so subtract 1
+            team1--;
+            team2--;
+            games.add(new Game(Team.get(team1), Team.get(team2)));
         }
 
         // Create empty rounds
-        // Teema 1 has (12 - 1) * 2 = 22 rounds
-        for (int j = 0; j < 22; j++) {
+        for (int j = 0; j < roundCount; j++) {
             baseRounds.add(new Round());
+        }
+
+        // Certain day limitations
+        while (constraints.get(index).equals("#team cannot play at home on a certain day (team-number round-number)") == false)
+            index++;
+        index++;
+
+        // Home day limitations
+        while (constraints.get(index).equals("#team cannot play away on a certain day (team-number round-number)") == false) {
+
+            index++;
+        }
+
+        // Home day limitations
+        while (constraints.get(index).equals("#team cannot play away on a certain day (team-number round-number)") == false) {
+
+            index++;
         }
 
         // TODO: handle bound games
