@@ -11,8 +11,13 @@ public class Population {
         rounds = new ArrayList<>();
         for (int i = 0; i < pRounds.size(); i++) {
             rounds.add(new Round());
+            // Add normal games
             for (Game g : pRounds.get(i).games) {
                 addGame(rounds.get(i), g);
+            }
+            // Add bound games
+            for (Game g : pRounds.get(i).boundGames) {
+                addBoundGame(rounds.get(i), g);
             }
         }
 
@@ -48,6 +53,10 @@ public class Population {
 
     public void addGame(Round r, Game g) {
         r.addGame(g);
+    }
+
+    public void addBoundGame(Round r, Game g) {
+        r.addBoundGame(g);
     }
 
     public int getSoftError() {

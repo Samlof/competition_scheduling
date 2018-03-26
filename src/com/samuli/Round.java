@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class Round {
     public final ArrayList<Game> games;
     private final ErrorCalculator errorCalculator;
-    private final ArrayList<Game> boundGames;
+    public final ArrayList<Game> boundGames;
 
     public Round() {
         games = new ArrayList<>();

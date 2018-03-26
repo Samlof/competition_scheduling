@@ -96,8 +96,11 @@ public class Main {
                 // Add 1 to ids, because my ids start from 0. Expected file starts from 1
                 writer.println((i + 1) + " " + (g.home.id + 1) + " " + (g.guest.id + 1) + " " + (g.bound ? "joo" : "ei"));
             }
+            for (Game g : r.boundGames) {
+                // Add 1 to ids, because my ids start from 0. Expected file starts from 1
+                writer.println("bound" + (i + 1) + " " + (g.home.id + 1) + " " + (g.guest.id + 1) + " " + (g.bound ? "joo" : "ei"));
+            }
         }
-
         writer.close();
     }
 
@@ -143,7 +146,6 @@ public class Main {
 
         // Create games from teams for RR
         ArrayList<Team> teams = Team.teams;
-
         while (RRCount > 1) {
             for (Team team1 : teams) {
                 for (Team team2 : teams) {
@@ -184,14 +186,14 @@ public class Main {
 
         // Home day limitations
         while (constraints.get(index).equals("#team cannot play away on a certain day (team-number round-number)") == false) {
-
+            // TODO:
             index++;
         }
         index++;
 
         // Home day limitations
         while (constraints.get(index).equals("#game must be preassigned on certain round (team-number team-number round-number)") == false) {
-
+            // TODO:
             index++;
         }
 
@@ -200,16 +202,20 @@ public class Main {
         for (; index < constraints.size(); index++) {
             // Parse the id's from string
             String[] ids = constraints.get(index).split(" ");
-            int team1 = Integer.parseInt(ids[0]) - 1;
-            int team2 = Integer.parseInt(ids[1]) - 1;
-            int round = Integer.parseInt(ids[1]) - 1;
+            int team1id = Integer.parseInt(ids[0]) - 1;
+            int team2id = Integer.parseInt(ids[1]) - 1;
+            int roundid = Integer.parseInt(ids[2]) - 1;
+            Team team1 = teams.get(team1id);
+            Team team2 = teams.get(team2id);
+            Round r = baseRounds.get(roundid);
 
             // Find the game from games list
             for (int i = 0; i < games.size(); i++) {
                 Game g = games.get(i);
-                if (g.home.id == team1 - 1 && g.guest.id == team2 - 1) {
+                if (g.home == team1 && g.guest == team2) {
+                    g.bound = true;
                     // Add the game to the round and remove it from games list
-                    baseRounds.get(round).addBoundGame(g);
+                    r.addBoundGame(g);
                     games.remove(i);
                     break;
                 }
