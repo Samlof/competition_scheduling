@@ -5,25 +5,25 @@ import java.util.ArrayList;
 
 public class Round {
     public final ArrayList<Game> games;
-    private final TeamGameCountError teamGameCountError;
+    private final ErrorCalculator errorCalculator;
     private final ArrayList<Game> boundGames;
 
     public Round() {
         games = new ArrayList<>();
         boundGames = new ArrayList<>();
 
-        teamGameCountError = new TeamGameCountError(games);
+        errorCalculator = new ErrorCalculator(games);
     }
 
     // This should only be called from Population.addGame!
     public void addGame(Game game) {
         games.add(game);
-        teamGameCountError.addGame(game);
+        errorCalculator.addGame(game);
     }
 
     public void addBoundGame(Game game) {
         boundGames.add(game);
-        teamGameCountError.addGame(game);
+        errorCalculator.addGame(game);
     }
 
     // This should only be called from Population.removeGame!
@@ -32,7 +32,7 @@ public class Round {
             // If the game didn't exist
             return;
         }
-        teamGameCountError.removeGame(game);
+        errorCalculator.removeGame(game);
     }
 
     public Game getRandomGame() {
@@ -53,7 +53,7 @@ public class Round {
 
         // GameCountErrors
 
-        double[] gameCountErrors = teamGameCountError.getErrorsByGame();
+        double[] gameCountErrors = errorCalculator.getErrorsByGame();
         for (int i = 0; i < games.size(); i++) {
             errorsByGame[i] += gameCountErrors[i] * Constants.GAME_COUNT_ERROR * Constants.HARD_ERROR;
         }
@@ -63,17 +63,17 @@ public class Round {
 
     public double getTotalErrors() {
         double error = 0;
-        error += teamGameCountError.getTotalErrors() * Constants.GAME_COUNT_ERROR * Constants.HARD_ERROR;
+        error += errorCalculator.getTotalErrors() * Constants.GAME_COUNT_ERROR * Constants.HARD_ERROR;
         return error;
     }
 
     public int getTeamCountError() {
-        return teamGameCountError.getTotalErrors();
+        return errorCalculator.getTotalErrors();
     }
 
     public int getHardErrors() {
         int total = 0;
-        total += teamGameCountError.getTotalErrors();
+        total += errorCalculator.getTotalErrors();
         return total;
     }
 

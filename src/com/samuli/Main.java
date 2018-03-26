@@ -1,11 +1,14 @@
 package com.samuli;
 
 
+import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
+import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.nio.file.Files.readAllLines;
 
 public class Main {
 
@@ -113,14 +116,12 @@ public class Main {
     }
 
     private static void makeGamesAndRounds() {
-        List<String> constraints;
+        List<String> constraints = null;
         try {
-
-            constraints = Files.readAllLines(Paths.get("Constaints.txt"));
-        } catch (Exception e) {
-            System.out.println("No Constaints.txt file found!");
-            constraints = null;
-            return;
+            Charset charset = Charset.forName("ISO-8859-1");
+            constraints = readAllLines(Paths.get("Constraints.txt"), charset);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         if (constraints == null) return;
 
@@ -160,12 +161,15 @@ public class Main {
         // Create additional games
         while (constraints.get(index).equals("#additional games") == false) index++;
         index++;
-        while (constraints.get(index).equals("#weekdays for rounds (1 = mon, 2 = tue, …) and 1 means a consecutive calendar day, 0 not") == false) {
+        // Loop thru the games and create them
+        while (constraints.get(index).startsWith("#") == false) {
             String[] teamIds = constraints.get(index).split(" ");
             int team1 = Integer.parseInt(teamIds[0]) - 1;
             int team2 = Integer.parseInt(teamIds[1]) - 1;
             // My id's are from 0, file id's from 1, so subtract 1
             games.add(new Game(Team.get(team1), Team.get(team2)));
+
+            index++;
         }
 
         // Create empty rounds

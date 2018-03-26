@@ -2,24 +2,24 @@ package com.samuli;
 
 import java.util.ArrayList;
 
-public class TeamGameCountError {
+public class ErrorCalculator {
     private int[] teamGameCounts;
-    private int totalGameErrors;
-    private int[] errorsByTeam;
+    private int totalGameErrors_GameCount;
+    //
+    private int[] errorsByTeam_GameCount;
     // This should be a reference to Round::games list. Don't edit it from this class!
     private final ArrayList<Game> games;
 
-    public TeamGameCountError(ArrayList<Game> pGames) {
+    public ErrorCalculator(ArrayList<Game> pGames) {
         games = pGames;
         teamGameCounts = Team.getIntArray();
-        errorsByTeam = Team.getIntArray();
+        errorsByTeam_GameCount = Team.getIntArray();
 
-        // Teema 1 wants 1 game per team. So empty round has that many errors
-        totalGameErrors = Team.getTeamCount();
+        // Empty round has no errors
+        totalGameErrors_GameCount = 0;
 
-        // Similarly. Teema 1 starts with 1 error per team
-        for (int i = 0; i < errorsByTeam.length; i++) {
-            errorsByTeam[i] = 1;
+        for (int i = 0; i < errorsByTeam_GameCount.length; i++) {
+            errorsByTeam_GameCount[i] = 0;
         }
     }
 
@@ -32,12 +32,8 @@ public class TeamGameCountError {
         int id = team.id;
         if (teamGameCounts[id] > 0) {
             // Already has one game with this team. Add an error
-            totalGameErrors++;
-            errorsByTeam[id]++;
-        } else if (teamGameCounts[id] == 0) {
-            // Teema 1 wants 1 game per team per game, so remove one error here
-            totalGameErrors--;
-            errorsByTeam[id]--;
+            totalGameErrors_GameCount++;
+            errorsByTeam_GameCount[id]++;
         }
         teamGameCounts[id]++;
     }
@@ -50,22 +46,18 @@ public class TeamGameCountError {
     private void removeTeam(Team team) {
         int id = team.id;
         if (teamGameCounts[id] > 1) {
-            // Already has one game with this team. Add an error
-            totalGameErrors--;
-            errorsByTeam[id]--;
-        } else if (teamGameCounts[id] == 1) {
-            // Teema 1 wants 1 game per team per game, so remove one error here
-            totalGameErrors++;
-            errorsByTeam[id]++;
-        } else {
+            // Already has one game with this team. Remove an error
+            totalGameErrors_GameCount--;
+            errorsByTeam_GameCount[id]--;
+        } else if (teamGameCounts[id] == 0) {
             // We should never get here, so print a message to show if it happened
-            System.out.println("TeamGameCountError::removeTeam tried to remove a team without any games!");
+            System.out.println("ErrorCalculator::removeTeam tried to remove a team without any games!");
         }
         teamGameCounts[id]--;
     }
 
     public int getTotalErrors() {
-        return totalGameErrors;
+        return totalGameErrors_GameCount;
     }
 
     public double[] getErrorsByGame() {
@@ -73,7 +65,7 @@ public class TeamGameCountError {
         double[] output = new double[games.size()];
         for (int i = 0; i < games.size(); i++) {
             Game game = games.get(i);
-            output[i] = errorsByTeam[game.home.id] + errorsByTeam[game.guest.id];
+            output[i] = errorsByTeam_GameCount[game.home.id] + errorsByTeam_GameCount[game.guest.id];
         }
         return output;
     }
@@ -83,30 +75,30 @@ public class TeamGameCountError {
         for (int i = 0; i < teamGameCounts.length; i++) {
             int c = teamGameCounts[i];
             if (c == 0) {
-                if (errorsByTeam[i] != 1) {
-                    System.out.println("if(errorsByTeam[i] != 1) {");
+                if (errorsByTeam_GameCount[i] != 1) {
+                    System.out.println("if(errorsByTeam_GameCount[i] != 1) {");
                     return false;
                 }
             }
             if (c > 1) {
-                if (errorsByTeam[i] != c - 1) {
-                    System.out.println("if(errorsByTeam[i] != c - 1) {");
+                if (errorsByTeam_GameCount[i] != c - 1) {
+                    System.out.println("if(errorsByTeam_GameCount[i] != c - 1) {");
                     return false;
                 }
             }
             if (c == 1) {
-                if (errorsByTeam[i] != 0) {
-                    System.out.println("if(errorsByTeam[i] != 0 {");
+                if (errorsByTeam_GameCount[i] != 0) {
+                    System.out.println("if(errorsByTeam_GameCount[i] != 0 {");
                     return false;
                 }
             }
         }
         int total = 0;
-        for (int e : errorsByTeam) {
+        for (int e : errorsByTeam_GameCount) {
             total += e;
         }
-        if (totalGameErrors != total) {
-            System.out.println(totalGameErrors + "(totalGameErrors != total) {" + total);
+        if (totalGameErrors_GameCount != total) {
+            System.out.println(totalGameErrors_GameCount + "(totalGameErrors_GameCount != total) {" + total);
             return false;
         }
         return true;
