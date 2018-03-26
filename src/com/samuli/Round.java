@@ -6,9 +6,11 @@ import java.util.ArrayList;
 public class Round {
     public final ArrayList<Game> games;
     private final TeamGameCountError teamGameCountError;
+    private final ArrayList<Game> boundGames;
 
     public Round() {
         games = new ArrayList<>();
+        boundGames = new ArrayList<>();
 
         teamGameCountError = new TeamGameCountError(games);
     }
@@ -16,6 +18,11 @@ public class Round {
     // This should only be called from Population.addGame!
     public void addGame(Game game) {
         games.add(game);
+        teamGameCountError.addGame(game);
+    }
+
+    public void addBoundGame(Game game) {
+        boundGames.add(game);
         teamGameCountError.addGame(game);
     }
 
