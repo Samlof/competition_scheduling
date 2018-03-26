@@ -186,13 +186,27 @@ public class Main {
 
         // Home day limitations
         while (constraints.get(index).equals("#team cannot play away on a certain day (team-number round-number)") == false) {
+            // Parse id's into Team objects
+            String[] teamIds = constraints.get(index).split(" ");
+            int team1id = Integer.parseInt(teamIds[0]) - 1;
+            int team2id = Integer.parseInt(teamIds[1]) - 1;
+            Team team1 = Team.get(team1id);
+            Team team2 = Team.get(team2id);
+
             // TODO:
             index++;
         }
         index++;
 
-        // Home day limitations
+        // Away day limitations
         while (constraints.get(index).equals("#game must be preassigned on certain round (team-number team-number round-number)") == false) {
+            // Parse id's into Team objects
+            String[] teamIds = constraints.get(index).split(" ");
+            int team1id = Integer.parseInt(teamIds[0]) - 1;
+            int team2id = Integer.parseInt(teamIds[1]) - 1;
+            Team team1 = Team.get(team1id);
+            Team team2 = Team.get(team2id);
+
             // TODO:
             index++;
         }
