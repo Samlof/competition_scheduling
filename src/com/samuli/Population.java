@@ -30,13 +30,24 @@ public class Population {
     }
 
     private GameRoundPair findGameToMove() {
-        GameRoundPair max = getRandomGame();
-        max.error = 0;
+        int biggestError = 0;
+        ArrayList<GameRoundPair> maxGames = new ArrayList<>();
         for (Round round : rounds) {
             GameRoundPair gameRoundPair = round.getHighestErrorGame();
-            if (gameRoundPair.error > max.error) max = gameRoundPair;
+            if (gameRoundPair.error > biggestError) {
+                biggestError = gameRoundPair.error;
+                maxGames.clear();
+                maxGames.add(gameRoundPair);
+            } else if (gameRoundPair.error == biggestError) {
+                maxGames.add(gameRoundPair);
+            }
         }
-        return max;
+        if (maxGames.size() == 0) {
+            // We already have the solution so shouldn't get here. But if we do return a random so no null pointers
+            return getRandomGame();
+        }
+        int randIndex = Globals.randomGen.nextInt(maxGames.size());
+        return maxGames.get(randIndex);
     }
 
     public GameRoundPair getRandomGame() {
@@ -48,8 +59,12 @@ public class Population {
         return new GameRoundPair(round.getRandomGame(), round);
     }
 
-    public double getTotalError() {
-        double total = 0;
+    public Round getRandomRound() {
+        return rounds.get(Globals.randomGen.nextInt(rounds.size()));
+    }
+
+    public int getTotalError() {
+        int total = 0;
         for (Round round : rounds) {
             total += round.getTotalErrorsWithMods();
         }
@@ -115,14 +130,26 @@ public class Population {
 
     public void develop() {
         GameRoundPair gameToMove = findGameToMove();
+        Round newRound = findBestRoundForGame(gameToMove.game, gameToMove.round);
+
         removeGame(gameToMove.round, gameToMove.game);
         tabuList.addTabu(gameToMove.round, gameToMove.game);
 
-        Round newRound = findBestRoundForGame(gameToMove.game, gameToMove.round);
         addGame(newRound, gameToMove.game);
     }
 
     public void mutate() {
+        // Get a random game and round
+        GameRoundPair game = getRandomGame();
+        Round newRound = getRandomRound();
+        // Move it to the random round
+        removeGame(game.round, game.game);
+        addGame(newRound, game.game);
+        // Add the move to tabulist
+        tabuList.addTabu(newRound, game.game);
+    }
+
+    public void startFromRandomDevelop() {
         // Save old error value
         double oldError = getTotalError();
         // Get random game and best place for it
@@ -141,9 +168,10 @@ public class Population {
             // Add the move to tabulist
             tabuList.addTabu(newRound, game.game);
         }
+
     }
 
-    public Round findBestRoundForGame(Game g, Round roundToSkip) {
+    private Round findBestRoundForGame(Game g, Round roundToSkip) {
         double minError = Double.MAX_VALUE;
         ArrayList<Round> minRounds = new ArrayList<>();
         for (Round r : rounds) {
@@ -151,7 +179,7 @@ public class Population {
             if (tabuList.isInList(r, g)) continue;
 
             addGame(r, g);
-            double newError = getTotalError();
+            int newError = getTotalError();
             if (newError < minError) {
                 minRounds.clear();
                 minRounds.add(r);

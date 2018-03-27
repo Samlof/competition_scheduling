@@ -81,13 +81,13 @@ public class Round {
         }
         // The index in games Array will be the game's unique id for this and chooseGameFromErrorArray function
         // All the error classes use a reference to this same games list, so the order they use will be same as well
-        double[] errorsByGame = new double[games.size()];
+        int[] errorsByGame = new int[games.size()];
         for (int i = 0; i < errorsByGame.length; i++) {
             errorsByGame[i] = 0;
         }
 
         // GameCountErrors
-        double[] gameCountErrors = errorCalculator.getTeamCountErrorsAsGamesArray();
+        int[] gameCountErrors = errorCalculator.getTeamCountErrorsAsGamesArray();
         for (int i = 0; i < games.size(); i++) {
             errorsByGame[i] += gameCountErrors[i] * Constants.GAME_COUNT_ERROR * Constants.HARD_ERROR;
             // Away and home game limit errors
@@ -131,10 +131,10 @@ public class Round {
         return total;
     }
 
-    private GameRoundPair chooseGameFromErrorArray(double[] errorsByGame) {
+    private GameRoundPair chooseGameFromErrorArray(int[] errorsByGame) {
         // Find highest error
-        double highest = 0;
-        for (double anErrorsByGame : errorsByGame) {
+        int highest = 0;
+        for (int anErrorsByGame : errorsByGame) {
             if (anErrorsByGame > highest) {
                 highest = anErrorsByGame;
             }

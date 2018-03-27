@@ -24,29 +24,59 @@ public class Main {
         int lowestRound = 0;
         Population lowestPop = null;
 
-        //populations[0].print();
         for (int roundNr = 0; roundNr < Constants.LOOP_AMOUNT; roundNr++) {
-            Population p = populations[0];
-            // Develop solution
-            for (int betteringRounds = 0; betteringRounds < Constants.BETTERING_ROUNDS; betteringRounds++) {
-                // Move the worst scored game BETTERING_ROUNDS times
-                p.develop();
+            for (Population p : populations) {
+                p.startFromRandomDevelop();
+                for (int betteringRounds = 0; betteringRounds < Constants.BETTERING_ROUNDS; betteringRounds++) {
+                    // Move the worst scored game BETTERING_ROUNDS times
+                    p.develop();
+                }
             }
             Globals.sa.calcNewProb();
 
-            // Mutate
-            p.mutate();
-            // TODO: Make use of the population
+            // Find best and worst pop
+            double lowErr = Double.MAX_VALUE;
+            int bestIndex = 0, worstIndex = 0;
+            double highErr = 0;
+            Population worstPop = null;
+            for (int i = 0; i < populations.length; i++) {
+                double error = populations[i].getTotalError();
+                if (error > highErr) {
+                    highErr = error;
+                    worstIndex = i;
+                }
+                if (error < lowErr) {
+                    lowErr = error;
+                    bestIndex = i;
+                }
+            }
+            // Move the best pop over the worst
+            populations[worstIndex] = populations[bestIndex].clone();
+            // Mutate the new one
+            populations[worstIndex].mutate();
 
+            for (Population p : populations) {
+                // Save the best round
+                if (p.getTotalError() < lowestError) {
+                    lowestError = p.getTotalError();
+                    lowestRound = roundNr;
+                    lowestPop = p.clone();
 
-            // Save the best round
-            if (p.getTotalError() < lowestError) {
-                lowestError = p.getTotalError();
-                lowestRound = roundNr;
-                lowestPop = p.clone();
-
-                System.out.println("Roundnr: " + roundNr + " total error: " + p.getTotalError());
-                if (p.getTotalError() == 0) break;
+                    System.out.println("Roundnr: " + roundNr + " total error: " + p.getTotalError());
+                    if (p.getTotalError() == 0) break;
+                }
+            }
+            // Print the best one after every 5000 rounds
+            if (roundNr % 5000 == 0) {
+                // Find best and worst pop
+                double bestError = Double.MAX_VALUE;
+                for (int i = 0; i < populations.length; i++) {
+                    double error = populations[i].getTotalError();
+                    if (error < bestError) {
+                        bestError = error;
+                    }
+                }
+                System.out.println("Roundnr: " + roundNr + " total error: " + bestError);
             }
         }
         System.out.println("------------------End------------------");

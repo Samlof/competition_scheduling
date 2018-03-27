@@ -121,9 +121,9 @@ public class ErrorCalculator {
         return totalGameErrors_GameCount;
     }
 
-    public double[] getTeamCountErrorsAsGamesArray() {
+    public int[] getTeamCountErrorsAsGamesArray() {
         // Round uses the same games list, the order will be same, so i works as a unique identifier for a game
-        double[] output = new double[games.size()];
+        int[] output = new int[games.size()];
         for (int i = 0; i < games.size(); i++) {
             Game game = games.get(i);
             output[i] = errorsByTeam_GameCount[game.home.id] + errorsByTeam_GameCount[game.guest.id];
