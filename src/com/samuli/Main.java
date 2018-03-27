@@ -54,14 +54,12 @@ public class Main {
                     if (p.getTotalError() == 0) break;
                 }
             }
-            // Print the best one after every 5000 rounds
-            if (roundNr % 5000 == 0) {
-                Population popToPrint = populations[0];
-                for (Population p : populations) {
-                    if (p.getTotalError() < popToPrint.getTotalError()) popToPrint = p;
-                }
-                System.out.println("Roundnr: " + roundNr + " total error: " + popToPrint.getTotalError() + " hard error: " + popToPrint.getHardError());
+            // Print the round number after every 5000
+            if (roundNr % 5000 == 0 && roundNr != 0) {
+                System.out.println("--- ROUND " + roundNr + " ---");
             }
+
+            if (lowestError == 0) break;
         }
         System.out.println("------------------End------------------");
 
