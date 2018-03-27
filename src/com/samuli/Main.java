@@ -34,25 +34,14 @@ public class Main {
             }
             Globals.sa.calcNewProb();
 
-            // Find best and worst pop
-            int lowErr = Integer.MAX_VALUE;
-            int bestIndex = 0, worstIndex = 0;
-            int highErr = 0;
-            for (int i = 0; i < populations.length; i++) {
-                int error = populations[i].getTotalError();
-                if (error > highErr) {
-                    highErr = error;
-                    worstIndex = i;
-                }
-                if (error < lowErr) {
-                    lowErr = error;
-                    bestIndex = i;
-                }
+            int bestPop = Globals.randomGen.nextInt(populations.length);
+            if (Globals.randomGen.nextDouble() < 0.80) {
+                // Random mutation to allow even the best to die
+                bestPop = getBestPop(populations);
             }
-            // Move the best pop over the worst
-            populations[worstIndex] = populations[bestIndex].clone();
-            // Mutate the new one
-            populations[worstIndex].mutate();
+            int randIndex = Globals.randomGen.nextInt(populations.length);
+            populations[randIndex] = populations[bestPop].clone();
+            populations[randIndex].mutate();
 
             for (Population p : populations) {
                 // Save the best round
@@ -67,10 +56,9 @@ public class Main {
             }
             // Print the best one after every 5000 rounds
             if (roundNr % 5000 == 0) {
-                // Find best and worst pop
-                double bestError = Double.MAX_VALUE;
+                int bestError = Integer.MAX_VALUE;
                 for (int i = 0; i < populations.length; i++) {
-                    double error = populations[i].getTotalError();
+                    int error = populations[i].getTotalError();
                     if (error < bestError) {
                         bestError = error;
                     }
@@ -81,8 +69,25 @@ public class Main {
         System.out.println("------------------End------------------");
 
         saveToFile(lowestPop);
+        System.out.println("Lowest at roundnr: " + lowestRound + " with error: " + lowestError);
 
         System.out.println("Result saved to file output.txt");
+    }
+
+    private static int getBestPop(Population[] pops) {
+        int bestIndex = 0, worstIndex = 0, highestError = Integer.MAX_VALUE, minError = 0;
+        for (int i = 0; i < pops.length; i++) {
+            int error = pops[i].getTotalError();
+            if (error > highestError) {
+                highestError = error;
+                worstIndex = i;
+            }
+            if (error < minError) {
+                minError = error;
+                bestIndex = i;
+            }
+        }
+        return bestIndex;
     }
 
     private static void saveToFile(Population p) {
