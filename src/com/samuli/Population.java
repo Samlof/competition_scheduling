@@ -47,7 +47,7 @@ public class Population {
             }
         }
         if (maxGames.size() == 0) {
-            // We already have the solution so shouldn't get here. But if we do return a random so no null pointers
+            // We already have the solution, or every possible bad game is in tabulist
             return getRandomGame();
         }
         int randIndex = Globals.randomGen.nextInt(maxGames.size());
@@ -134,12 +134,20 @@ public class Population {
 
     public void develop() {
         GameRoundPair gameToMove = findGameToMove();
+
         Round newRound = findBestRoundForGame(gameToMove.game, gameToMove.round);
-
+        int oldError = getTotalError();
         removeGame(gameToMove.round, gameToMove.game);
-
         addGame(newRound, gameToMove.game);
+        int newError = getTotalError();
+
         tabuList.addTabu(newRound, gameToMove.game);
+
+        // Check if the move was good or bad, so should we cancel it
+        if (newError > oldError && Globals.sa.accept() == false) {
+            removeGame(newRound, gameToMove.game);
+            addGame(gameToMove.round, gameToMove.game);
+        }
     }
 
     public void mutate() {
@@ -149,7 +157,6 @@ public class Population {
         // Move it to the random round
         removeGame(game.round, game.game);
         addGame(newRound, game.game);
-        // Add the move to tabulist
         tabuList.addTabu(newRound, game.game);
     }
 
@@ -158,21 +165,22 @@ public class Population {
         double oldError = getTotalError();
         // Get random game and best place for it
         GameRoundPair game = getRandomGame();
+        //Round newRound = getRandomRound();
         Round newRound = findBestRoundForGame(game.game, game.round);
         // Move it to the best place
         removeGame(game.round, game.game);
         addGame(newRound, game.game);
         // Check new error value and test if it's better or worse
         double newError = getTotalError();
-        // If the move made the solution worse, check SA whether to cancel it
-        if ((newError > oldError && Globals.sa.accept()) == false) {
-            removeGame(newRound, game.game);
-            addGame(game.round, game.game);
-        } else {
+        // If the move made the solution better, or whether sa accepts it
+        if (newError < oldError || Globals.sa.accept()) {
             // Add the move to tabulist
             tabuList.addTabu(newRound, game.game);
+        } else {
+            // Otherwise cancel the move
+            removeGame(newRound, game.game);
+            addGame(game.round, game.game);
         }
-
     }
 
     private Round findBestRoundForGame(Game g, Round roundToSkip) {

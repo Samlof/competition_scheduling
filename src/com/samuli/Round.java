@@ -93,9 +93,8 @@ public class Round {
             errorsByGame[i] += errorCalculator.getHomeErrorByTeam(games.get(i).home) * Constants.HOME_GAME_ERROR * Constants.HARD_ERROR;
 
             // Use tabulist here. Change the not allowed game's error to negative, so it will never be chosen
-            if (tabuList.isInList(this, games.get(i))) {
+            if (tabuList.isInList(this, g)) {
                 errorsByGame[i] = -5;
-                continue;
             }
         }
         return chooseGameFromErrorArray(errorsByGame);
