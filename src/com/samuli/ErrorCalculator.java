@@ -3,10 +3,16 @@ package com.samuli;
 import java.util.ArrayList;
 
 public class ErrorCalculator {
+    // This tracks how many games each team has in this round
     private int[] teamGameCounts;
+
+    // Tracks the error count if team has over 2 or more games in this round
     private int totalGameErrors_GameCount;
-    //
     private int[] errorsByTeam_GameCount;
+
+    private final CanPlayOnRoundError homeErrors;
+    private final CanPlayOnRoundError awayErrors;
+
     // This should be a reference to Round::games list. Don't edit it from this class!
     private final ArrayList<Game> games;
 
@@ -15,12 +21,67 @@ public class ErrorCalculator {
         teamGameCounts = Team.getIntArray();
         errorsByTeam_GameCount = Team.getIntArray();
 
+        // Set up the team count errors
         // Empty round has no errors
         totalGameErrors_GameCount = 0;
 
         for (int i = 0; i < errorsByTeam_GameCount.length; i++) {
             errorsByTeam_GameCount[i] = 0;
         }
+
+        // Home and away game limit errors
+        homeErrors = new CanPlayOnRoundError();
+        awayErrors = new CanPlayOnRoundError();
+    }
+
+    public ErrorCalculator clone(ArrayList<Game> pGames) {
+        ErrorCalculator output = new ErrorCalculator(pGames);
+        // Clone the error limits
+        for (Team t : Team.teams) {
+            if (homeErrors.hasTeam(t) > 0) {
+                output.homeErrors.setTeam(t);
+            }
+            if (awayErrors.hasTeam(t) > 0) {
+                output.awayErrors.setTeam(t);
+            }
+        }
+        return output;
+    }
+
+    public void setAwayGameLimit(Team team) {
+        awayErrors.setTeam(team);
+    }
+
+    public void setHomeGameLimit(Team team) {
+        homeErrors.setTeam(team);
+    }
+
+    public int getAwayErrorByTeam(Team t) {
+        return getErrorsFromCanPlayErrorByTeam(awayErrors, t);
+    }
+
+    public int getAwayErrors() {
+        return getErrorsFromCanPlayError(awayErrors);
+    }
+
+    public int getHomeErrorByTeam(Team t) {
+        return getErrorsFromCanPlayErrorByTeam(homeErrors, t);
+    }
+
+    public int getHomeErrors() {
+        return getErrorsFromCanPlayError(homeErrors);
+    }
+
+    private int getErrorsFromCanPlayErrorByTeam(CanPlayOnRoundError c, Team t) {
+        return c.hasTeam(t) * teamGameCounts[t.id];
+    }
+
+    private int getErrorsFromCanPlayError(CanPlayOnRoundError c) {
+        int output = 0;
+        for (Team t : Team.teams) {
+            output += getErrorsFromCanPlayErrorByTeam(c, t);
+        }
+        return output;
     }
 
     public void addGame(Game game) {
@@ -56,11 +117,11 @@ public class ErrorCalculator {
         teamGameCounts[id]--;
     }
 
-    public int getTotalErrors() {
+    public int getTotalTeamCountErrors() {
         return totalGameErrors_GameCount;
     }
 
-    public double[] getErrorsByGame() {
+    public double[] getTeamCountErrorsAsGamesArray() {
         // Round uses the same games list, the order will be same, so i works as a unique identifier for a game
         double[] output = new double[games.size()];
         for (int i = 0; i < games.size(); i++) {

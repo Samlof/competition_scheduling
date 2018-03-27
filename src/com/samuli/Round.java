@@ -5,8 +5,9 @@ import java.util.ArrayList;
 
 public class Round {
     public final ArrayList<Game> games;
-    private final ErrorCalculator errorCalculator;
+    private ErrorCalculator errorCalculator;
     public final ArrayList<Game> boundGames;
+
 
     public Round() {
         games = new ArrayList<>();
@@ -15,10 +16,44 @@ public class Round {
         errorCalculator = new ErrorCalculator(games);
     }
 
-    // This should only be called from Population.addGame!
+    public Round clone() {
+        Round output = new Round();
+        output.errorCalculator = errorCalculator.clone(output.games);
+        // Clone the games
+        for (Game g : games) {
+            output.addGame(g);
+        }
+        for (Game g : boundGames) {
+            output.addBoundGame(g);
+        }
+        return output;
+    }
+
+    public ArrayList<Game> getBoundGames() {
+        // Copy it into a new array, so cannot accidentally change it outside this class
+        ArrayList<Game> output = new ArrayList<>();
+        output.addAll(boundGames);
+        return output;
+    }
+
+    public ArrayList<Game> getGames() {
+        // Copy it into a new array, so cannot accidentally change it outside this class
+        ArrayList<Game> output = new ArrayList<>();
+        output.addAll(games);
+        return output;
+    }
+
     public void addGame(Game game) {
         games.add(game);
         errorCalculator.addGame(game);
+    }
+
+    public void setAwayGameLimit(Team team) {
+        errorCalculator.setAwayGameLimit(team);
+    }
+
+    public void setHomeGameLimit(Team team) {
+        errorCalculator.setHomeGameLimit(team);
     }
 
     public void addBoundGame(Game game) {
@@ -52,29 +87,43 @@ public class Round {
         }
 
         // GameCountErrors
-
-        double[] gameCountErrors = errorCalculator.getErrorsByGame();
+        double[] gameCountErrors = errorCalculator.getTeamCountErrorsAsGamesArray();
         for (int i = 0; i < games.size(); i++) {
             errorsByGame[i] += gameCountErrors[i] * Constants.GAME_COUNT_ERROR * Constants.HARD_ERROR;
+            // Away and home game limit errors
+            errorsByGame[i] += errorCalculator.getAwayErrorByTeam(games.get(i).guest) * Constants.AWAY_GAME_ERROR * Constants.HARD_ERROR;
+            errorsByGame[i] += errorCalculator.getHomeErrorByTeam(games.get(i).home) * Constants.HOME_GAME_ERROR * Constants.HARD_ERROR;
         }
 
         return chooseGameFromErrorArray(errorsByGame);
     }
 
-    public double getTotalErrors() {
+    public double getTotalErrorsWithMods() {
         double error = 0;
-        error += errorCalculator.getTotalErrors() * Constants.GAME_COUNT_ERROR * Constants.HARD_ERROR;
+        error += errorCalculator.getTotalTeamCountErrors() * Constants.GAME_COUNT_ERROR * Constants.HARD_ERROR;
+        error += errorCalculator.getAwayErrors() * Constants.AWAY_GAME_ERROR * Constants.HARD_ERROR;
+        error += errorCalculator.getHomeErrors() * Constants.HOME_GAME_ERROR * Constants.HARD_ERROR;
         return error;
     }
 
     public int getTeamCountError() {
-        return errorCalculator.getTotalErrors();
+        return errorCalculator.getTotalTeamCountErrors();
+    }
+
+    public int getAwayErrors() {
+        return errorCalculator.getAwayErrors();
+    }
+
+    public int getHomeErrors() {
+        return errorCalculator.getHomeErrors();
     }
 
     public int getHardErrors() {
-        int total = 0;
-        total += errorCalculator.getTotalErrors();
-        return total;
+        int error = 0;
+        error += getTeamCountError();
+        error += errorCalculator.getAwayErrors();
+        error += errorCalculator.getHomeErrors();
+        return error;
     }
 
     public int getSoftErrors() {
@@ -96,12 +145,14 @@ public class Round {
         for (int i = 0; i < errorsByGame.length; i++) {
             if (errorsByGame[i] == highest) highestGames.add(i);
         }
-        // Choose one of them
+
+        // Debug info for if there were no games found. Shouldn't ever get here
         if (highestGames.size() == 0) {
             System.out.println("highestGames.size() == 0 " + errorsByGame);
             System.out.println("Game count " + games.size());
             // If games.size() is 0, next line throws and exception. There is a check earlier. If this happens still change the fix
         }
+        // Choose one of them
         Integer chosenId = highestGames.size() == 1 ? highestGames.get(0) : highestGames.get(Globals.randomGen.nextInt(highestGames.size()));
         Game chosenGame = games.get(chosenId);
 
@@ -113,7 +164,7 @@ public class Round {
 
     public String description() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Total games: " + games.size() + ", Total error: " + getTotalErrors() + "\n");
+        sb.append("Total games: " + games.size() + ", Total error: " + getTotalErrorsWithMods() + "\n");
         return sb.toString();
     }
 }

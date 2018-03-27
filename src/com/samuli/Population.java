@@ -9,15 +9,16 @@ public class Population {
     public Population(ArrayList<Round> pRounds) {
         // Clones the given rounds array
         rounds = new ArrayList<>();
-        for (int i = 0; i < pRounds.size(); i++) {
-            rounds.add(new Round());
-            // Add normal games
-            for (Game g : pRounds.get(i).games) {
-                addGame(rounds.get(i), g);
+        for (Round r : pRounds) {
+            rounds.add(r.clone());
+        }
+        // Add the games to this rounds error lists as well. Nothing right now but in Teema 3.
+        for (Round r : rounds) {
+            for (Game g : r.getGames()) {
+                addErrorCalc(r, g);
             }
-            // Add bound games
-            for (Game g : pRounds.get(i).boundGames) {
-                addBoundGame(rounds.get(i), g);
+            for (Game g : r.getBoundGames()) {
+                addErrorCalc(r, g);
             }
         }
 
@@ -46,17 +47,23 @@ public class Population {
     public double getTotalError() {
         double total = 0;
         for (Round round : rounds) {
-            total += round.getTotalErrors();
+            total += round.getTotalErrorsWithMods();
         }
         return total;
     }
 
     public void addGame(Round r, Game g) {
         r.addGame(g);
+        addErrorCalc(r, g);
     }
 
     public void addBoundGame(Round r, Game g) {
         r.addBoundGame(g);
+        addErrorCalc(r, g);
+    }
+
+    public void addErrorCalc(Round r, Game g) {
+        // TODO: not needed yet. But in Teema 3
     }
 
     public int getSoftError() {
@@ -83,6 +90,21 @@ public class Population {
         return total;
     }
 
+    public int getAwayErrors() {
+        int total = 0;
+        for (Round r : rounds) {
+            total += r.getAwayErrors();
+        }
+        return total;
+    }
+
+    public int getHomeErrors() {
+        int total = 0;
+        for (Round r : rounds) {
+            total += r.getHomeErrors();
+        }
+        return total;
+    }
     public void removeGame(Round r, Game g) {
         r.removeGame(g);
     }
@@ -94,6 +116,27 @@ public class Population {
 
         Round newRound = findBestRoundForGame(gameToMove.game, gameToMove.round);
         addGame(newRound, gameToMove.game);
+    }
+
+    public void mutate() {
+        // Save old error value
+        double oldError = getTotalError();
+        // Get random game and best place for it
+        GameRoundPair game = getRandomGame();
+        Round newRound = findBestRoundForGame(game.game, game.round);
+        // Move it to the best place
+        removeGame(game.round, game.game);
+        addGame(newRound, game.game);
+        // Check new error value and test if it's better or worse
+        double newError = getTotalError();
+        // If the move made the solution worse, check SA whether to cancel it
+        if ((newError > oldError && Globals.sa.accept()) == false) {
+            removeGame(newRound, game.game);
+            addGame(game.round, game.game);
+        } else {
+            // Add the move to tabulist
+            tabuList.addTabu(newRound, game.game);
+        }
     }
 
     public Round findBestRoundForGame(Game g, Round roundToSkip) {

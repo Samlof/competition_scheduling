@@ -26,28 +26,16 @@ public class Main {
 
         //populations[0].print();
         for (int roundNr = 0; roundNr < Constants.LOOP_AMOUNT; roundNr++) {
+            Population p = populations[0];
             // Develop solution
             for (int betteringRounds = 0; betteringRounds < Constants.BETTERING_ROUNDS; betteringRounds++) {
                 // Move the worst scored game BETTERING_ROUNDS times
-                populations[0].develop();
+                p.develop();
             }
             Globals.sa.calcNewProb();
 
             // Mutate
-            // Move this inside Population as method?
-            Population p = populations[0];
-            double oldError = p.getTotalError();
-            GameRoundPair game = p.getRandomGame();
-            Round newRound = p.findBestRoundForGame(game.game, game.round);
-            p.removeGame(game.round, game.game);
-            p.addGame(newRound, game.game);
-            double newError = p.getTotalError();
-            // If the move made the solution worse, check SA whether to cancel it
-            if ((newError > oldError && Globals.sa.accept()) == false) {
-                p.removeGame(newRound, game.game);
-                p.addGame(game.round, game.game);
-            }
-
+            p.mutate();
             // TODO: Make use of the population
 
 
@@ -57,7 +45,7 @@ public class Main {
                 lowestRound = roundNr;
                 lowestPop = new Population(p.rounds);
 
-                System.out.println("Roundnr: " + roundNr + " total error: " + populations[0].getTotalError());
+                System.out.println("Roundnr: " + roundNr + " total error: " + p.getTotalError());
                 if (p.getTotalError() == 0) break;
             }
         }
@@ -85,8 +73,8 @@ public class Main {
 
         // Toka rivi: pelatut_virheet kotiesto_virheet vierasesto_virheet break_virheet (esim. 0 0 0 5)
         writer.print(p.getTeamCountError() + " ");
-        writer.print("0" + " ");
-        writer.print("0" + " ");
+        writer.print(p.getHomeErrors() + " ");
+        writer.print(p.getAwayErrors() + " ");
         writer.println("0");
 
         // Loput rivit: kierros koti_joukkue vieras_joukkue lukittu_kierrokselle_ei_tai_joo (esim. 1 10 1 joo ja 3 9 6 ei)
@@ -98,7 +86,7 @@ public class Main {
             }
             for (Game g : r.boundGames) {
                 // Add 1 to ids, because my ids start from 0. Expected file starts from 1
-                writer.println("bound" + (i + 1) + " " + (g.home.id + 1) + " " + (g.guest.id + 1) + " " + (g.bound ? "joo" : "ei"));
+                writer.println((i + 1) + " " + (g.home.id + 1) + " " + (g.guest.id + 1) + " " + (g.bound ? "joo" : "ei"));
             }
         }
         writer.close();
@@ -186,28 +174,30 @@ public class Main {
 
         // Home day limitations
         while (constraints.get(index).equals("#team cannot play away on a certain day (team-number round-number)") == false) {
-            // Parse id's into Team objects
+            // Parse id's into Team and Round objects
             String[] teamIds = constraints.get(index).split(" ");
             int team1id = Integer.parseInt(teamIds[0]) - 1;
             int roundid = Integer.parseInt(teamIds[1]) - 1;
             Team team = Team.get(team1id);
             Round r = baseRounds.get(roundid);
 
-            // TODO:
+            // Add the limit
+            r.setHomeGameLimit(team);
             index++;
         }
         index++;
 
         // Away day limitations
         while (constraints.get(index).equals("#game must be preassigned on certain round (team-number team-number round-number)") == false) {
-            // Parse id's into Team objects
+            // Parse id's into Team and Round objects
             String[] teamIds = constraints.get(index).split(" ");
             int team1id = Integer.parseInt(teamIds[0]) - 1;
             int roundid = Integer.parseInt(teamIds[1]) - 1;
             Team team = Team.get(team1id);
             Round r = baseRounds.get(roundid);
 
-            // TODO:
+            // Add the limit
+            r.setAwayGameLimit(team);
             index++;
         }
 
