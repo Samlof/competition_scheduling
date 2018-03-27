@@ -74,7 +74,7 @@ public class Round {
         return games.get(Globals.randomGen.nextInt(games.size()));
     }
 
-    public GameRoundPair getHighestErrorGame(TabuList tabuList) {
+    public GameRoundPair getHighestErrorGame() {
         if (games.size() == 0) {
             // No game to choose from. Return null and skip this
             return null;
@@ -91,11 +91,6 @@ public class Round {
             // Away and home game limit errors
             errorsByGame[i] += errorCalculator.getAwayErrorByTeam(games.get(i).guest) * Constants.AWAY_GAME_ERROR * Constants.HARD_ERROR;
             errorsByGame[i] += errorCalculator.getHomeErrorByTeam(games.get(i).home) * Constants.HOME_GAME_ERROR * Constants.HARD_ERROR;
-
-            // Use tabulist here. Change the not allowed game's error to negative, so it will never be chosen
-            if (tabuList.isInList(this, g)) {
-                errorsByGame[i] = -5;
-            }
         }
         return chooseGameFromErrorArray(errorsByGame);
     }

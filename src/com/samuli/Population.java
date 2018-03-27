@@ -34,7 +34,7 @@ public class Population {
         ArrayList<GameRoundPair> maxGames = new ArrayList<>();
         // Find the games with biggest error
         for (Round round : rounds) {
-            GameRoundPair gameRoundPair = round.getHighestErrorGame(tabuList);
+            GameRoundPair gameRoundPair = round.getHighestErrorGame();
             // The round has no games we can choose from, so skip it
             if (gameRoundPair == null) continue;
 
@@ -140,13 +140,12 @@ public class Population {
         removeGame(gameToMove.round, gameToMove.game);
         addGame(newRound, gameToMove.game);
         int newError = getTotalError();
-
-        tabuList.addTabu(newRound, gameToMove.game);
-
         // Check if the move was good or bad, so should we cancel it
         if (newError > oldError && Globals.sa.accept() == false) {
             removeGame(newRound, gameToMove.game);
             addGame(gameToMove.round, gameToMove.game);
+        } else {
+            tabuList.addTabu(gameToMove.round, gameToMove.game);
         }
     }
 
@@ -157,7 +156,7 @@ public class Population {
         // Move it to the random round
         removeGame(game.round, game.game);
         addGame(newRound, game.game);
-        tabuList.addTabu(newRound, game.game);
+        tabuList.addTabu(game.round, game.game);
     }
 
     public void startFromRandomDevelop() {
@@ -175,7 +174,7 @@ public class Population {
         // If the move made the solution better, or whether sa accepts it
         if (newError < oldError || Globals.sa.accept()) {
             // Add the move to tabulist
-            tabuList.addTabu(newRound, game.game);
+            tabuList.addTabu(game.round, game.game);
         } else {
             // Otherwise cancel the move
             removeGame(newRound, game.game);
@@ -191,6 +190,7 @@ public class Population {
         ArrayList<Round> minRounds = new ArrayList<>();
         for (Round r : rounds) {
             if (r == roundToSkip) continue;
+            if (tabuList.isInList(r, g)) continue;
             addGame(r, g);
             int newError = getTotalError();
             if (newError < minError) {
