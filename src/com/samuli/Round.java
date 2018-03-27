@@ -33,7 +33,7 @@ public class Round {
             }
         }
 
-        // Clone the games
+        // Add the games to new one
         for (Game g : games) {
             output.addGame(g);
         }

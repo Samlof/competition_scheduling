@@ -27,12 +27,6 @@ public class TeamCountErrors {
         }
     }
 
-    public TeamCountErrors clone(ArrayList<Game> pGames) {
-        TeamCountErrors output = new TeamCountErrors(pGames);
-        // Clone the error limits
-        return output;
-    }
-
     public void addGame(Game game) {
         addTeam(game.home);
         addTeam(game.guest);
