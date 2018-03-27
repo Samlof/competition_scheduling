@@ -29,6 +29,24 @@ public class Population {
         return new Population(rounds);
     }
 
+    public Population combine(Population other) {
+        ArrayList<Round> newRounds = new ArrayList<>();
+        for (int i = 0; i < rounds.size(); i++) {
+            Round r1 = rounds.get(i);
+            Round r2 = other.rounds.get(i);
+            // The rounds are equal, so random it
+            if (r1.getTotalErrorsWithMods() == r2.getTotalErrorsWithMods()) {
+                newRounds.add((Globals.randomGen.nextDouble() < 0.5 ? r1 : r2).clone());
+                // r1 has a better one, so add that
+            } else if (r1.getTotalErrorsWithMods() < r2.getTotalErrorsWithMods()) {
+                newRounds.add(r1.clone());
+            } else {
+                newRounds.add(r2.clone());
+            }
+        }
+        return new Population(newRounds);
+    }
+
     private GameRoundPair findGameToMove() {
         int biggestError = 0;
         ArrayList<GameRoundPair> maxGames = new ArrayList<>();

@@ -6,6 +6,8 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.nio.file.Files.readAllLines;
@@ -34,12 +36,11 @@ public class Main {
             }
             Globals.sa.calcNewProb();
 
-            // Create the new population, mutate and such
-            int bestPop = getBestPop(populations);
-            int randIndex = Globals.randomGen.nextInt(populations.length);
-            populations[randIndex] = populations[bestPop].clone();
+            // Sort the array to get easy access to best and worst populations
+            sort(populations);
+            populations[populations.length - 1] = populations[0].combine(populations[1]);
             for (int i = 0; i < Constants.MUTATION_TIMES; i++) {
-                populations[randIndex].mutate();
+                populations[populations.length - 1].mutate();
             }
 
             // Find out if we have a new best solution
@@ -68,6 +69,15 @@ public class Main {
         System.out.println("Lowest at roundnr: " + lowestRound + " with error: " + lowestPop.getHardError());
 
         System.out.println("Result saved to file output.txt");
+    }
+
+    private static void sort(Population[] populations) {
+        Arrays.sort(populations, new Comparator<Population>() {
+            public int compare(Population o1, Population o2) {
+                // Intentional: Reverse order for this demo
+                return o2.getTotalError() - o1.getTotalError();
+            }
+        });
     }
 
     private static int getBestPop(Population[] pops) {
