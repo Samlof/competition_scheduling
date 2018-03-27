@@ -25,6 +25,10 @@ public class Population {
         tabuList = new TabuList();
     }
 
+    public Population clone() {
+        return new Population(rounds);
+    }
+
     private GameRoundPair findGameToMove() {
         GameRoundPair max = getRandomGame();
         max.error = 0;

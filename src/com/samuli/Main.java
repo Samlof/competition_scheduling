@@ -43,7 +43,7 @@ public class Main {
             if (p.getTotalError() < lowestError) {
                 lowestError = p.getTotalError();
                 lowestRound = roundNr;
-                lowestPop = new Population(p.rounds);
+                lowestPop = p.clone();
 
                 System.out.println("Roundnr: " + roundNr + " total error: " + p.getTotalError());
                 if (p.getTotalError() == 0) break;
