@@ -57,7 +57,7 @@ public class ErrorCalculator {
     }
 
     public int getAwayErrorByTeam(Team t) {
-        return getErrorsFromCanPlayErrorByTeam(awayErrors, t);
+        return awayErrors.getErrorByTeam(t);
     }
 
     public int getAwayErrors() {
@@ -65,21 +65,17 @@ public class ErrorCalculator {
     }
 
     public int getHomeErrorByTeam(Team t) {
-        return getErrorsFromCanPlayErrorByTeam(homeErrors, t);
+        return homeErrors.getErrorByTeam(t);
     }
 
     public int getHomeErrors() {
         return getErrorsFromCanPlayError(homeErrors);
     }
 
-    private int getErrorsFromCanPlayErrorByTeam(CanPlayOnRoundError c, Team t) {
-        return c.hasTeam(t) * teamGameCounts[t.id];
-    }
-
     private int getErrorsFromCanPlayError(CanPlayOnRoundError c) {
         int output = 0;
         for (Team t : Team.teams) {
-            output += getErrorsFromCanPlayErrorByTeam(c, t);
+            output += c.getErrorByTeam(t);
         }
         return output;
     }
@@ -87,6 +83,8 @@ public class ErrorCalculator {
     public void addGame(Game game) {
         addTeam(game.home);
         addTeam(game.guest);
+        homeErrors.addTeam(game.home);
+        awayErrors.addTeam(game.guest);
     }
 
     private void addTeam(Team team) {
@@ -102,6 +100,8 @@ public class ErrorCalculator {
     public void removeGame(Game game) {
         removeTeam(game.home);
         removeTeam(game.guest);
+        homeErrors.removeTeam(game.home);
+        awayErrors.removeTeam(game.guest);
     }
 
     private void removeTeam(Team team) {
