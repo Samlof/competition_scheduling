@@ -2,7 +2,7 @@ package com.samuli;
 
 import java.util.ArrayList;
 
-public class ErrorCalculator {
+public class TeamCountErrors {
     // This tracks how many games each team has in this round
     private int[] teamGameCounts;
 
@@ -10,13 +10,10 @@ public class ErrorCalculator {
     private int totalGameErrors_GameCount;
     private int[] errorsByTeam_GameCount;
 
-    private final CanPlayOnRoundError homeErrors;
-    private final CanPlayOnRoundError awayErrors;
-
     // This should be a reference to Round::games list. Don't edit it from this class!
     private final ArrayList<Game> games;
 
-    public ErrorCalculator(ArrayList<Game> pGames) {
+    public TeamCountErrors(ArrayList<Game> pGames) {
         games = pGames;
         teamGameCounts = Team.getIntArray();
         errorsByTeam_GameCount = Team.getIntArray();
@@ -28,63 +25,17 @@ public class ErrorCalculator {
         for (int i = 0; i < errorsByTeam_GameCount.length; i++) {
             errorsByTeam_GameCount[i] = 0;
         }
-
-        // Home and away game limit errors
-        homeErrors = new CanPlayOnRoundError();
-        awayErrors = new CanPlayOnRoundError();
     }
 
-    public ErrorCalculator clone(ArrayList<Game> pGames) {
-        ErrorCalculator output = new ErrorCalculator(pGames);
+    public TeamCountErrors clone(ArrayList<Game> pGames) {
+        TeamCountErrors output = new TeamCountErrors(pGames);
         // Clone the error limits
-        for (Team t : Team.teams) {
-            if (homeErrors.hasTeam(t) > 0) {
-                output.homeErrors.setTeam(t);
-            }
-            if (awayErrors.hasTeam(t) > 0) {
-                output.awayErrors.setTeam(t);
-            }
-        }
-        return output;
-    }
-
-    public void setAwayGameLimit(Team team) {
-        awayErrors.setTeam(team);
-    }
-
-    public void setHomeGameLimit(Team team) {
-        homeErrors.setTeam(team);
-    }
-
-    public int getAwayErrorByTeam(Team t) {
-        return awayErrors.getErrorByTeam(t);
-    }
-
-    public int getAwayErrors() {
-        return getErrorsFromCanPlayError(awayErrors);
-    }
-
-    public int getHomeErrorByTeam(Team t) {
-        return homeErrors.getErrorByTeam(t);
-    }
-
-    public int getHomeErrors() {
-        return getErrorsFromCanPlayError(homeErrors);
-    }
-
-    private int getErrorsFromCanPlayError(CanPlayOnRoundError c) {
-        int output = 0;
-        for (Team t : Team.teams) {
-            output += c.getErrorByTeam(t);
-        }
         return output;
     }
 
     public void addGame(Game game) {
         addTeam(game.home);
         addTeam(game.guest);
-        homeErrors.addTeam(game.home);
-        awayErrors.addTeam(game.guest);
     }
 
     private void addTeam(Team team) {
@@ -100,8 +51,6 @@ public class ErrorCalculator {
     public void removeGame(Game game) {
         removeTeam(game.home);
         removeTeam(game.guest);
-        homeErrors.removeTeam(game.home);
-        awayErrors.removeTeam(game.guest);
     }
 
     private void removeTeam(Team team) {
@@ -112,7 +61,7 @@ public class ErrorCalculator {
             errorsByTeam_GameCount[id]--;
         } else if (teamGameCounts[id] == 0) {
             // We should never get here, so print a message to show if it happened
-            System.out.println("ErrorCalculator::removeTeam tried to remove a team without any games!");
+            System.out.println("TeamCountErrors::removeTeam tried to remove a team without any games!");
         }
         teamGameCounts[id]--;
     }

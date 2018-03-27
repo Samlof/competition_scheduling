@@ -5,20 +5,34 @@ import java.util.ArrayList;
 
 public class Round {
     public final ArrayList<Game> games;
-    private ErrorCalculator errorCalculator;
     public final ArrayList<Game> boundGames;
+
+    private final CanPlayOnRoundErrors homeErrors;
+    private final CanPlayOnRoundErrors awayErrors;
+    private TeamCountErrors teamCountErrors;
 
 
     public Round() {
         games = new ArrayList<>();
         boundGames = new ArrayList<>();
 
-        errorCalculator = new ErrorCalculator(games);
+        teamCountErrors = new TeamCountErrors(games);
+        awayErrors = new CanPlayOnRoundErrors();
+        homeErrors = new CanPlayOnRoundErrors();
     }
 
     public Round clone() {
         Round output = new Round();
-        output.errorCalculator = errorCalculator.clone(output.games);
+        // Clone the set home and away limits
+        for (Team t : Team.teams) {
+            if (homeErrors.isTeamSet(t) > 0) {
+                output.homeErrors.setTeam(t);
+            }
+            if (awayErrors.isTeamSet(t) > 0) {
+                output.awayErrors.setTeam(t);
+            }
+        }
+
         // Clone the games
         for (Game g : games) {
             output.addGame(g);
@@ -45,29 +59,36 @@ public class Round {
 
     public void addGame(Game game) {
         games.add(game);
-        errorCalculator.addGame(game);
+        addGameToErrors(game);
     }
 
     public void setAwayGameLimit(Team team) {
-        errorCalculator.setAwayGameLimit(team);
+        awayErrors.setTeam(team);
     }
 
     public void setHomeGameLimit(Team team) {
-        errorCalculator.setHomeGameLimit(team);
+        homeErrors.setTeam(team);
     }
 
     public void addBoundGame(Game game) {
         boundGames.add(game);
-        errorCalculator.addGame(game);
+        addGameToErrors(game);
     }
 
+    private void addGameToErrors(Game game) {
+        teamCountErrors.addGame(game);
+        homeErrors.addTeam(game.home);
+        awayErrors.addTeam(game.guest);
+    }
     // This should only be called from Population.removeGame!
     public void removeGame(Game game) {
         if (games.remove(game) == false) {
             // If the game didn't exist
             return;
         }
-        errorCalculator.removeGame(game);
+        teamCountErrors.removeGame(game);
+        homeErrors.removeTeam(game.home);
+        awayErrors.removeTeam(game.guest);
     }
 
     public Game getRandomGame() {
@@ -87,39 +108,39 @@ public class Round {
             Game g = games.get(i);
             errorsByGame[i] = 0;
 
-            errorsByGame[i] += errorCalculator.getTeamCountsErrorByGame(g) * Constants.GAME_COUNT_ERROR * Constants.HARD_ERROR;
+            errorsByGame[i] += teamCountErrors.getTeamCountsErrorByGame(g) * Constants.GAME_COUNT_ERROR * Constants.HARD_ERROR;
             // Away and home game limit errors
-            errorsByGame[i] += errorCalculator.getAwayErrorByTeam(games.get(i).guest) * Constants.AWAY_GAME_ERROR * Constants.HARD_ERROR;
-            errorsByGame[i] += errorCalculator.getHomeErrorByTeam(games.get(i).home) * Constants.HOME_GAME_ERROR * Constants.HARD_ERROR;
+            errorsByGame[i] += awayErrors.getErrorByTeam(games.get(i).guest) * Constants.AWAY_GAME_ERROR * Constants.HARD_ERROR;
+            errorsByGame[i] += homeErrors.getErrorByTeam(games.get(i).home) * Constants.HOME_GAME_ERROR * Constants.HARD_ERROR;
         }
         return chooseGameFromErrorArray(errorsByGame);
     }
 
     public int getTotalErrorsWithMods() {
         int error = 0;
-        error += errorCalculator.getTotalTeamCountErrors() * Constants.GAME_COUNT_ERROR * Constants.HARD_ERROR;
-        error += errorCalculator.getAwayErrors() * Constants.AWAY_GAME_ERROR * Constants.HARD_ERROR;
-        error += errorCalculator.getHomeErrors() * Constants.HOME_GAME_ERROR * Constants.HARD_ERROR;
+        error += getTeamCountError() * Constants.GAME_COUNT_ERROR * Constants.HARD_ERROR;
+        error += getAwayErrors() * Constants.AWAY_GAME_ERROR * Constants.HARD_ERROR;
+        error += getHomeErrors() * Constants.HOME_GAME_ERROR * Constants.HARD_ERROR;
         return error;
     }
 
     public int getTeamCountError() {
-        return errorCalculator.getTotalTeamCountErrors();
+        return teamCountErrors.getTotalTeamCountErrors();
     }
 
     public int getAwayErrors() {
-        return errorCalculator.getAwayErrors();
+        return awayErrors.getTotalErrors();
     }
 
     public int getHomeErrors() {
-        return errorCalculator.getHomeErrors();
+        return homeErrors.getTotalErrors();
     }
 
     public int getHardErrors() {
         int error = 0;
         error += getTeamCountError();
-        error += errorCalculator.getAwayErrors();
-        error += errorCalculator.getHomeErrors();
+        error += getAwayErrors();
+        error += getHomeErrors();
         return error;
     }
 

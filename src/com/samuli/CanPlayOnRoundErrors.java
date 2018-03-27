@@ -1,11 +1,11 @@
 package com.samuli;
 
-public class CanPlayOnRoundError {
+public class CanPlayOnRoundErrors {
 
     private final int[] gameLimits;
     private final int[] gameCounts;
 
-    public CanPlayOnRoundError() {
+    public CanPlayOnRoundErrors() {
         gameLimits = Team.getIntArray();
         gameCounts = Team.getIntArray();
     }
@@ -14,7 +14,7 @@ public class CanPlayOnRoundError {
         gameLimits[t.id] = 1;
     }
 
-    public int hasTeam(Team t) {
+    public int isTeamSet(Team t) {
         return gameLimits[t.id];
     }
 
@@ -28,5 +28,13 @@ public class CanPlayOnRoundError {
 
     public int getErrorByTeam(Team t) {
         return gameLimits[t.id] * gameCounts[t.id];
+    }
+
+    public int getTotalErrors() {
+        int error = 0;
+        for (int i = 0; i < gameCounts.length; i++) {
+            error += gameLimits[i] * gameCounts[i];
+        }
+        return error;
     }
 }
