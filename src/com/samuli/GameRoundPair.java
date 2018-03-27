@@ -16,4 +16,8 @@ public class GameRoundPair {
         error = 0;
         round = _round;
     }
+
+    public String description() {
+        return "Game:" + game + ", error: " + error + ", Round:" + round;
+    }
 }

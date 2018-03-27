@@ -121,14 +121,8 @@ public class ErrorCalculator {
         return totalGameErrors_GameCount;
     }
 
-    public int[] getTeamCountErrorsAsGamesArray() {
-        // Round uses the same games list, the order will be same, so i works as a unique identifier for a game
-        int[] output = new int[games.size()];
-        for (int i = 0; i < games.size(); i++) {
-            Game game = games.get(i);
-            output[i] = errorsByTeam_GameCount[game.home.id] + errorsByTeam_GameCount[game.guest.id];
-        }
-        return output;
+    public int getTeamCountsErrorByGame(Game game) {
+        return errorsByTeam_GameCount[game.home.id] + errorsByTeam_GameCount[game.guest.id];
     }
 
     // For debugging
@@ -136,7 +130,7 @@ public class ErrorCalculator {
         for (int i = 0; i < teamGameCounts.length; i++) {
             int c = teamGameCounts[i];
             if (c == 0) {
-                if (errorsByTeam_GameCount[i] != 1) {
+                if (errorsByTeam_GameCount[i] != 0) {
                     System.out.println("if(errorsByTeam_GameCount[i] != 1) {");
                     return false;
                 }

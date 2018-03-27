@@ -34,7 +34,10 @@ public class Population {
         ArrayList<GameRoundPair> maxGames = new ArrayList<>();
         // Find the games with biggest error
         for (Round round : rounds) {
-            GameRoundPair gameRoundPair = round.getHighestErrorGame();
+            GameRoundPair gameRoundPair = round.getHighestErrorGame(tabuList);
+            // The round has no games we can choose from, so skip it
+            if (gameRoundPair == null) continue;
+
             if (gameRoundPair.error > biggestError) {
                 biggestError = gameRoundPair.error;
                 maxGames.clear();
@@ -134,9 +137,9 @@ public class Population {
         Round newRound = findBestRoundForGame(gameToMove.game, gameToMove.round);
 
         removeGame(gameToMove.round, gameToMove.game);
-        tabuList.addTabu(gameToMove.round, gameToMove.game);
 
         addGame(newRound, gameToMove.game);
+        tabuList.addTabu(newRound, gameToMove.game);
     }
 
     public void mutate() {
@@ -173,12 +176,13 @@ public class Population {
     }
 
     private Round findBestRoundForGame(Game g, Round roundToSkip) {
+        if (g == null) {
+            System.out.println("findBestRoundForGame:: Was given a null game");
+        }
         double minError = Double.MAX_VALUE;
         ArrayList<Round> minRounds = new ArrayList<>();
         for (Round r : rounds) {
             if (r == roundToSkip) continue;
-            if (tabuList.isInList(r, g)) continue;
-
             addGame(r, g);
             int newError = getTotalError();
             if (newError < minError) {

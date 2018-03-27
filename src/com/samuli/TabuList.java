@@ -12,14 +12,13 @@ public class TabuList {
         }
     }
 
-    private Tabu[] tabuArray;
-    private int currIndex;
+    Tabu[] tabuArray;
+    int currIndex;
 
     public TabuList() {
         tabuArray = new Tabu[Constants.TABULIST_SIZE];
         currIndex = 0;
     }
-
     public void addTabu(Round round, Game game) {
         if (currIndex == tabuArray.length) currIndex = 0;
         tabuArray[currIndex] = new Tabu(round, game);

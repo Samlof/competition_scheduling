@@ -74,27 +74,30 @@ public class Round {
         return games.get(Globals.randomGen.nextInt(games.size()));
     }
 
-    public GameRoundPair getHighestErrorGame() {
+    public GameRoundPair getHighestErrorGame(TabuList tabuList) {
         if (games.size() == 0) {
-            // No game to choose from. Skip even earlier in the chain? Or this workaround
-            return new GameRoundPair(null, this, 0);
+            // No game to choose from. Return null and skip this
+            return null;
         }
         // The index in games Array will be the game's unique id for this and chooseGameFromErrorArray function
         // All the error classes use a reference to this same games list, so the order they use will be same as well
         int[] errorsByGame = new int[games.size()];
-        for (int i = 0; i < errorsByGame.length; i++) {
-            errorsByGame[i] = 0;
-        }
-
-        // GameCountErrors
-        int[] gameCountErrors = errorCalculator.getTeamCountErrorsAsGamesArray();
+        // Calculate the errors for games
         for (int i = 0; i < games.size(); i++) {
-            errorsByGame[i] += gameCountErrors[i] * Constants.GAME_COUNT_ERROR * Constants.HARD_ERROR;
+            Game g = games.get(i);
+            errorsByGame[i] = 0;
+
+            errorsByGame[i] += errorCalculator.getTeamCountsErrorByGame(g) * Constants.GAME_COUNT_ERROR * Constants.HARD_ERROR;
             // Away and home game limit errors
             errorsByGame[i] += errorCalculator.getAwayErrorByTeam(games.get(i).guest) * Constants.AWAY_GAME_ERROR * Constants.HARD_ERROR;
             errorsByGame[i] += errorCalculator.getHomeErrorByTeam(games.get(i).home) * Constants.HOME_GAME_ERROR * Constants.HARD_ERROR;
-        }
 
+            // Use tabulist here. Change the not allowed game's error to negative, so it will never be chosen
+            if (tabuList.isInList(this, games.get(i))) {
+                errorsByGame[i] = -5;
+                continue;
+            }
+        }
         return chooseGameFromErrorArray(errorsByGame);
     }
 
@@ -140,14 +143,18 @@ public class Round {
             }
         }
 
-        // Find games with the highest error
+        // Find indexes with the highest error
         ArrayList<Integer> highestGames = new ArrayList<>();
         for (int i = 0; i < errorsByGame.length; i++) {
             if (errorsByGame[i] == highest) highestGames.add(i);
         }
 
-        // Debug info for if there were no games found. Shouldn't ever get here
         if (highestGames.size() == 0) {
+            // Nothing to choose from, meaning all games are in tabulist. Return null so it will just skip
+            if (highest == 0) {
+                return null;
+            }
+            // Should never get here!
             System.out.println("highestGames.size() == 0 " + errorsByGame);
             System.out.println("Game count " + games.size());
             // If games.size() is 0, next line throws and exception. There is a check earlier. If this happens still change the fix

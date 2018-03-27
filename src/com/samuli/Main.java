@@ -35,12 +35,11 @@ public class Main {
             Globals.sa.calcNewProb();
 
             // Find best and worst pop
-            double lowErr = Double.MAX_VALUE;
+            int lowErr = Integer.MAX_VALUE;
             int bestIndex = 0, worstIndex = 0;
-            double highErr = 0;
-            Population worstPop = null;
+            int highErr = 0;
             for (int i = 0; i < populations.length; i++) {
-                double error = populations[i].getTotalError();
+                int error = populations[i].getTotalError();
                 if (error > highErr) {
                     highErr = error;
                     worstIndex = i;
