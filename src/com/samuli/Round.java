@@ -98,8 +98,8 @@ public class Round {
         return chooseGameFromErrorArray(errorsByGame);
     }
 
-    public double getTotalErrorsWithMods() {
-        double error = 0;
+    public int getTotalErrorsWithMods() {
+        int error = 0;
         error += errorCalculator.getTotalTeamCountErrors() * Constants.GAME_COUNT_ERROR * Constants.HARD_ERROR;
         error += errorCalculator.getAwayErrors() * Constants.AWAY_GAME_ERROR * Constants.HARD_ERROR;
         error += errorCalculator.getHomeErrors() * Constants.HOME_GAME_ERROR * Constants.HARD_ERROR;

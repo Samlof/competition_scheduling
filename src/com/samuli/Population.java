@@ -32,6 +32,7 @@ public class Population {
     private GameRoundPair findGameToMove() {
         int biggestError = 0;
         ArrayList<GameRoundPair> maxGames = new ArrayList<>();
+        // Find the games with biggest error
         for (Round round : rounds) {
             GameRoundPair gameRoundPair = round.getHighestErrorGame();
             if (gameRoundPair.error > biggestError) {
@@ -51,10 +52,10 @@ public class Population {
     }
 
     public GameRoundPair getRandomGame() {
-        Round round = rounds.get(Globals.randomGen.nextInt(rounds.size()));
+        Round round = getRandomRound();
         // In case the round we got has 0 games in it. Then random another one
         while (round.games.size() == 0) {
-            round = rounds.get(Globals.randomGen.nextInt(rounds.size()));
+            round = getRandomRound();
         }
         return new GameRoundPair(round.getRandomGame(), round);
     }
