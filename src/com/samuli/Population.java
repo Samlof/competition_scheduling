@@ -30,6 +30,8 @@ public class Population {
     }
 
     public Population combine(Population other) {
+        // TODO: Fix this to calculate by each game, not by round
+        // Now the amount of games will change and ruin the schedule
         ArrayList<Round> newRounds = new ArrayList<>();
         for (int i = 0; i < rounds.size(); i++) {
             Round r1 = rounds.get(i);
