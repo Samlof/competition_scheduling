@@ -38,7 +38,7 @@ public class Main {
 
             // Sort the array to get easy access to best and worst populations
             sort(populations);
-            populations[populations.length - 1] = populations[0].combine(populations[1]);
+            //populations[populations.length - 1] = populations[0].combine(populations[1]);
             for (int i = 0; i < Constants.MUTATION_TIMES; i++) {
                 populations[populations.length - 1].mutate();
             }
@@ -50,7 +50,7 @@ public class Main {
                     lowestRound = roundNr;
                     lowestPop = p.clone();
 
-                    System.out.println("Round: " + roundNr + " total: " + p.getTotalError() + " hard: " + p.getHardError() + " pelimäärä: " + p.getTeamCountError() + " kotipeli: " + p.getHomeErrors() + " vieraspeli: " + p.getAwayErrors());
+                    System.out.println("Round: " + roundNr + " total: " + p.getTotalError() + " hard: " + p.getHardError() + " pelimäärä: " + p.getTeamCountError() + " kotipeli: " + p.getHomeErrors() + " vieraspeli: " + p.getAwayErrors() + " break: " + p.getBreakErrors());
                     if (p.getTotalError() == 0) break;
                 }
             }
@@ -76,38 +76,6 @@ public class Main {
                 return o2.getTotalError() - o1.getTotalError();
             }
         });
-    }
-
-    private static int getBestPop(Population[] pops) {
-        int bestIndex = 0, worstIndex = 0, highestError = Integer.MAX_VALUE, minError = 0;
-        for (int i = 0; i < pops.length; i++) {
-            int error = pops[i].getTotalError();
-            if (error > highestError) {
-                highestError = error;
-                worstIndex = i;
-            }
-            if (error < minError) {
-                minError = error;
-                bestIndex = i;
-            }
-        }
-        return bestIndex;
-    }
-
-    private static int getWorstPop(Population[] pops) {
-        int bestIndex = 0, worstIndex = 0, highestError = Integer.MAX_VALUE, minError = 0;
-        for (int i = 0; i < pops.length; i++) {
-            int error = pops[i].getTotalError();
-            if (error > highestError) {
-                highestError = error;
-                worstIndex = i;
-            }
-            if (error < minError) {
-                minError = error;
-                bestIndex = i;
-            }
-        }
-        return worstIndex;
     }
 
     private static void saveToFile(Population p) {

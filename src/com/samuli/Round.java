@@ -78,6 +78,10 @@ public class Round {
         awayErrors.addTeam(game.guest);
         breakErrors.addGame(game);
     }
+
+    public BreakErrors getBreakErrorsClass() {
+        return breakErrors;
+    }
     // This should only be called from Population.removeGame!
     public void removeGame(Game game) {
         if (games.remove(game) == false) {
