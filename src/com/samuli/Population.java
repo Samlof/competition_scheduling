@@ -101,16 +101,10 @@ public class Population {
 
     public void addGame(Round r, Game g) {
         r.addGame(g);
-        addErrorCalc(r, g);
     }
 
     public void addBoundGame(Round r, Game g) {
         r.addBoundGame(g);
-        addErrorCalc(r, g);
-    }
-
-    public void addErrorCalc(Round r, Game g) {
-        // TODO: not needed yet. But in Teema 3
     }
 
     public int getSoftError() {
@@ -149,6 +143,14 @@ public class Population {
         int total = 0;
         for (Round r : rounds) {
             total += r.getHomeErrors();
+        }
+        return total;
+    }
+
+    public int getBreakErrors() {
+        int total = 0;
+        for (Round r : rounds) {
+            total += r.getBreakErrors();
         }
         return total;
     }

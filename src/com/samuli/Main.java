@@ -129,7 +129,7 @@ public class Main {
         writer.print(p.getTeamCountError() + " ");
         writer.print(p.getHomeErrors() + " ");
         writer.print(p.getAwayErrors() + " ");
-        writer.println("0");
+        writer.println(p.getBreakErrors());
 
         // Loput rivit: kierros koti_joukkue vieras_joukkue lukittu_kierrokselle_ei_tai_joo (esim. 1 10 1 joo ja 3 9 6 ei)
         for (int i = 0; i < p.rounds.size(); i++) {

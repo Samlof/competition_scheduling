@@ -10,6 +10,7 @@ public class Round {
     private final CanPlayOnRoundErrors homeErrors;
     private final CanPlayOnRoundErrors awayErrors;
     private TeamCountErrors teamCountErrors;
+    private final BreakErrors breakErrors;
 
     private Round nextRound;
     private Round prevRound;
@@ -22,6 +23,7 @@ public class Round {
         teamCountErrors = new TeamCountErrors(games);
         awayErrors = new CanPlayOnRoundErrors();
         homeErrors = new CanPlayOnRoundErrors();
+        breakErrors = new BreakErrors();
 
         nextRound = null;
         prevRound = null;
@@ -57,6 +59,7 @@ public class Round {
     public void setNextAndPrevRounds(Round next, Round previous) {
         nextRound = next;
         prevRound = previous;
+        breakErrors.setNextAndPrevRounds(next, previous);
     }
 
     public void addGame(Game game) {
@@ -114,6 +117,9 @@ public class Round {
             // Away and home game limit errors
             errorsByGame[i] += awayErrors.getErrorByTeam(games.get(i).guest) * Constants.AWAY_GAME_ERROR * Constants.HARD_ERROR;
             errorsByGame[i] += homeErrors.getErrorByTeam(games.get(i).home) * Constants.HOME_GAME_ERROR * Constants.HARD_ERROR;
+
+            // Break errors
+            errorsByGame[i] += breakErrors.getErrorByGame(g) * Constants.BREAK_ERROR * Constants.SOFT_ERROR;
         }
         return chooseGameFromErrorArray(errorsByGame);
     }
@@ -123,6 +129,7 @@ public class Round {
         error += getTeamCountError() * Constants.GAME_COUNT_ERROR * Constants.HARD_ERROR;
         error += getAwayErrors() * Constants.AWAY_GAME_ERROR * Constants.HARD_ERROR;
         error += getHomeErrors() * Constants.HOME_GAME_ERROR * Constants.HARD_ERROR;
+        error += getBreakErrors() * Constants.BREAK_ERROR * Constants.SOFT_ERROR;
         return error;
     }
 
@@ -138,6 +145,10 @@ public class Round {
         return homeErrors.getTotalErrors();
     }
 
+    public int getBreakErrors() {
+        return breakErrors.getTotalErrors();
+    }
+
     public int getHardErrors() {
         int error = 0;
         error += getTeamCountError();
@@ -148,6 +159,7 @@ public class Round {
 
     public int getSoftErrors() {
         int total = 0;
+        total += getBreakErrors();
         return total;
     }
 

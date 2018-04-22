@@ -7,7 +7,8 @@ public class Constants {
     public static final int AWAY_GAME_ERROR = 1;
     public static final int HOME_GAME_ERROR = 10;
 
-    public static final int SOFT_ERROR = 10;
+    public static final int SOFT_ERROR = 1;
+    public static final int BREAK_ERROR = 10;
 
     public static final int POPULATION_COUNT = 100;
     public static final int TABULIST_SIZE = 1;
