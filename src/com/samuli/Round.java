@@ -12,9 +12,6 @@ public class Round {
     private TeamCountErrors teamCountErrors;
     private final BreakErrors breakErrors;
 
-    private Round nextRound;
-    private Round prevRound;
-
 
     public Round() {
         games = new ArrayList<>();
@@ -24,9 +21,6 @@ public class Round {
         awayErrors = new CanPlayOnRoundErrors();
         homeErrors = new CanPlayOnRoundErrors();
         breakErrors = new BreakErrors();
-
-        nextRound = null;
-        prevRound = null;
     }
 
     public Round clone() {
@@ -57,8 +51,6 @@ public class Round {
     }
 
     public void setNextAndPrevRounds(Round next, Round previous) {
-        nextRound = next;
-        prevRound = previous;
         breakErrors.setNextAndPrevRounds(next, previous);
     }
 
@@ -84,6 +76,7 @@ public class Round {
         teamCountErrors.addGame(game);
         homeErrors.addTeam(game.home);
         awayErrors.addTeam(game.guest);
+        breakErrors.addGame(game);
     }
     // This should only be called from Population.removeGame!
     public void removeGame(Game game) {
@@ -94,6 +87,7 @@ public class Round {
         teamCountErrors.removeGame(game);
         homeErrors.removeTeam(game.home);
         awayErrors.removeTeam(game.guest);
+        breakErrors.removeGame(game);
     }
 
     public Game getRandomGame() {

@@ -16,16 +16,29 @@ public class BreakErrors {
         prevRound = previous;
     }
 
-    public void addTeam(Team t) {
+    public void addGame(Game game) {
+        addTeam(game.home);
+        addTeam(game.guest);
+    }
+
+    public void removeGame(Game game) {
+        removeTeam(game.home);
+        removeTeam(game.guest);
+    }
+
+    private void addTeam(Team t) {
         gameCounts[t.id]++;
-        // TODO:
+        update(t);
     }
 
-    public void removeTeam(Team t) {
+    private void removeTeam(Team t) {
         gameCounts[t.id]--;
-        // TODO:
+        update(t);
     }
 
+    public void update(Team t) {
+        // TODO:
+    }
 
     public int getErrorByGame(Game g) {
         // TODO:
