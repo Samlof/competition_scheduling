@@ -11,6 +11,9 @@ public class Round {
     private final CanPlayOnRoundErrors awayErrors;
     private TeamCountErrors teamCountErrors;
 
+    private Round nextRound;
+    private Round prevRound;
+
 
     public Round() {
         games = new ArrayList<>();
@@ -19,42 +22,41 @@ public class Round {
         teamCountErrors = new TeamCountErrors(games);
         awayErrors = new CanPlayOnRoundErrors();
         homeErrors = new CanPlayOnRoundErrors();
+
+        nextRound = null;
+        prevRound = null;
     }
 
     public Round clone() {
         Round output = new Round();
+
+        output.copyRoundsAndErrors(this);
+        return output;
+    }
+
+    public void copyRoundsAndErrors(Round other) {
         // Clone the set home and away limits
         for (Team t : Team.teams) {
-            if (homeErrors.isTeamSet(t) > 0) {
-                output.homeErrors.setTeam(t);
+            if (other.homeErrors.isTeamSet(t) > 0) {
+                homeErrors.setTeam(t);
             }
-            if (awayErrors.isTeamSet(t) > 0) {
-                output.awayErrors.setTeam(t);
+            if (other.awayErrors.isTeamSet(t) > 0) {
+                awayErrors.setTeam(t);
             }
         }
 
         // Add the games to new one
-        for (Game g : games) {
-            output.addGame(g);
+        for (Game g : other.games) {
+            addGame(g);
         }
-        for (Game g : boundGames) {
-            output.addBoundGame(g);
+        for (Game g : other.boundGames) {
+            addBoundGame(g);
         }
-        return output;
     }
 
-    public ArrayList<Game> getBoundGames() {
-        // Copy it into a new array, so cannot accidentally change it outside this class
-        ArrayList<Game> output = new ArrayList<>();
-        output.addAll(boundGames);
-        return output;
-    }
-
-    public ArrayList<Game> getGames() {
-        // Copy it into a new array, so cannot accidentally change it outside this class
-        ArrayList<Game> output = new ArrayList<>();
-        output.addAll(games);
-        return output;
+    public void setNextAndPrevRounds(Round next, Round previous) {
+        nextRound = next;
+        prevRound = previous;
     }
 
     public void addGame(Game game) {

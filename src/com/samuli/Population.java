@@ -9,19 +9,23 @@ public class Population {
     public Population(ArrayList<Round> pRounds) {
         // Clones the given rounds array
         rounds = new ArrayList<>();
+        // First fill the rounds array
         for (Round r : pRounds) {
-            rounds.add(r.clone());
+            rounds.add(new Round());
         }
-        // Add the games to this rounds error lists as well. Nothing right now but in Teema 3.
-        for (Round r : rounds) {
-            for (Game g : r.getGames()) {
-                addErrorCalc(r, g);
+        // Set up prev and next round links
+        for (int i = 1; i < rounds.size(); i++) {
+            Round prevRound = rounds.get(i - 1);
+            Round nextRound = null;
+            if (i < rounds.size() - 1) {
+                nextRound = rounds.get(i + 1);
             }
-            for (Game g : r.getBoundGames()) {
-                addErrorCalc(r, g);
-            }
+            rounds.get(i).setNextAndPrevRounds(nextRound, prevRound);
         }
-
+        // Copy the rounds
+        for (int i = 0; i < rounds.size(); i++) {
+            rounds.get(i).copyRoundsAndErrors(pRounds.get(i));
+        }
         tabuList = new TabuList();
     }
 
