@@ -13,15 +13,6 @@ public class Population {
         for (int i = 0; i < pRounds.size(); i++) {
             rounds.add(new Round());
         }
-        // Set up prev and next round links
-        for (int i = 1; i < rounds.size(); i++) {
-            Round prevRound = rounds.get(i - 1);
-            Round nextRound = null;
-            if (i < rounds.size() - 1) {
-                nextRound = rounds.get(i + 1);
-            }
-            rounds.get(i).setNextAndPrevRounds(nextRound, prevRound);
-        }
         // Copy the rounds
         for (int i = 0; i < rounds.size(); i++) {
             rounds.get(i).copyRoundsAndErrors(pRounds.get(i));
@@ -34,7 +25,11 @@ public class Population {
     }
 
     private GameRoundPair findGameToMove() {
+        // If HardError is 0, there is no point in finding the game. As the games don't know of their soft errors
+        if (getHardError() == 0) return getRandomGame();
+
         int biggestError = 0;
+
         ArrayList<GameRoundPair> maxGames = new ArrayList<>();
         // Find the games with biggest error
         for (Round round : rounds) {
@@ -76,7 +71,7 @@ public class Population {
         for (Round round : rounds) {
             total += round.getTotalErrorsWithMods();
         }
-        total += checkBreakError();
+        total += getBreakErrors() * Constants.SOFT_ERROR * Constants.BREAK_ERROR;
         return total;
     }
 
@@ -93,6 +88,7 @@ public class Population {
         for (Round r : rounds) {
             total += r.getSoftErrors();
         }
+        total += getBreakErrors();
         return total;
     }
 
@@ -128,13 +124,6 @@ public class Population {
         return total;
     }
 
-    public int getBreakErrors() {
-        int total = 0;
-        for (Round r : rounds) {
-            total += r.getBreakErrors();
-        }
-        return total;
-    }
     public void removeGame(Round r, Game g) {
         r.removeGame(g);
     }
@@ -228,7 +217,7 @@ public class Population {
         }
     }
 
-    public int checkBreakError() {
+    public int getBreakErrors() {
         int error = 0;
         for (Team t : Team.teams) {
             Boolean homeStreak = false;

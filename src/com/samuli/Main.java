@@ -37,10 +37,12 @@ public class Main {
             Globals.sa.calcNewProb();
 
             // Sort the array to get easy access to best and worst populations
-            sort(populations);
+            //sort(populations);
+            //int indexToMutate = populations.length - 1;
+            int indexToMutate = Globals.randomGen.nextInt(populations.length);
             //populations[populations.length - 1] = populations[0].combine(populations[1]);
             for (int i = 0; i < Constants.MUTATION_TIMES; i++) {
-                populations[populations.length - 1].mutate();
+                populations[indexToMutate].mutate();
             }
 
             // Find out if we have a new best solution
@@ -51,26 +53,12 @@ public class Main {
                     lowestPop = p.clone();
 
                     System.out.println("------------------NEW------------------");
-                    System.out.println("Round: " + roundNr);
-                    System.out.println("lowestPop Error: " + lowestPop.getTotalError() + " lowest error:" + lowestError + " check: " + lowestPop.checkBreakError());
-                    System.out.println("Soft: " + lowestPop.getSoftError() + " break: " + lowestPop.getBreakErrors() + " check: " + lowestPop.checkBreakError());
-                    System.out.println("Soft: " + p.getSoftError() + " break: " + p.getBreakErrors() + " check: " + p.checkBreakError());
-                    System.out.println("Total: " + lowestPop.getTotalError() + " hard: " + lowestPop.getHardError() + " pelimäärä: " + lowestPop.getTeamCountError() + " kotipeli: " + lowestPop.getHomeErrors() + " vieraspeli: " + lowestPop.getAwayErrors());
-                    System.out.println("Total: " + p.getTotalError() + " hard: " + p.getHardError() + " pelimäärä: " + p.getTeamCountError() + " kotipeli: " + p.getHomeErrors() + " vieraspeli: " + p.getAwayErrors());
+                    System.out.println("Round: " + roundNr + " Total: " + lowestError);
+                    System.out.println("Soft: " + p.getSoftError() + " break: " + p.getBreakErrors());
+                    System.out.println("Hard: " + p.getHardError() + " pelimäärä: " + p.getTeamCountError() + " kotipeli: " + p.getHomeErrors() + " vieraspeli: " + p.getAwayErrors());
                     System.out.println("---------------------------------------");
 
-
-                    if (lowestPop.getSoftError() != p.getSoftError()) {
-                        System.out.println("ASDSAD");
-                        for (int i = 0; i < p.rounds.size(); i++) {
-                            if (p.rounds.get(i).boundGames.size() != lowestPop.rounds.get(i).boundGames.size()) {
-
-                                System.out.println("GAMES NOT SAME SIZE!!");
-                                return;
-                            }
-                        }
-                    }
-                    if (p.getTotalError() == 0) break;
+                    if (lowestError == 0) break;
                 }
 
 
@@ -83,8 +71,6 @@ public class Main {
             if (lowestError == 0) break;
         }
         System.out.println("------------------End------------------");
-
-        System.out.println("Check error: " + lowestPop.checkBreakError());
         System.out.println("Lowest at round: " + lowestRound + " with error: " + lowestPop.getTotalError() + " lowest error:" + lowestError);
         saveToFile(lowestPop);
 
