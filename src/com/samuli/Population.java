@@ -10,7 +10,7 @@ public class Population {
         // Clones the given rounds array
         rounds = new ArrayList<>();
         // First fill the rounds array
-        for (Round r : pRounds) {
+        for (int i = 0; i < pRounds.size(); i++) {
             rounds.add(new Round());
         }
         // Set up prev and next round links
@@ -31,26 +31,6 @@ public class Population {
 
     public Population clone() {
         return new Population(rounds);
-    }
-
-    public Population combine(Population other) {
-        // TODO: Fix this to calculate by each game, not by round
-        // Now the amount of games will change and ruin the schedule
-        ArrayList<Round> newRounds = new ArrayList<>();
-        for (int i = 0; i < rounds.size(); i++) {
-            Round r1 = rounds.get(i);
-            Round r2 = other.rounds.get(i);
-            // The rounds are equal, so random it
-            if (r1.getTotalErrorsWithMods() == r2.getTotalErrorsWithMods()) {
-                newRounds.add((Globals.randomGen.nextDouble() < 0.5 ? r1 : r2).clone());
-                // r1 has a better one, so add that
-            } else if (r1.getTotalErrorsWithMods() < r2.getTotalErrorsWithMods()) {
-                newRounds.add(r1.clone());
-            } else {
-                newRounds.add(r2.clone());
-            }
-        }
-        return new Population(newRounds);
     }
 
     private GameRoundPair findGameToMove() {
@@ -96,6 +76,7 @@ public class Population {
         for (Round round : rounds) {
             total += round.getTotalErrorsWithMods();
         }
+        total += checkBreakError();
         return total;
     }
 
@@ -160,10 +141,10 @@ public class Population {
 
     public void develop() {
         GameRoundPair gameToMove = findGameToMove();
+        removeGame(gameToMove.round, gameToMove.game);
 
         Round newRound = findBestRoundForGame(gameToMove.game, gameToMove.round);
         int oldError = getTotalError();
-        removeGame(gameToMove.round, gameToMove.game);
         addGame(newRound, gameToMove.game);
         int newError = getTotalError();
         // Check if the move was good or bad, so should we cancel it
@@ -188,12 +169,13 @@ public class Population {
     public void startFromRandomDevelop() {
         // Save old error value
         double oldError = getTotalError();
-        // Get random game and best place for it
+        // Get random game
         GameRoundPair game = getRandomGame();
-        //Round newRound = getRandomRound();
+
+        removeGame(game.round, game.game);
+
         Round newRound = findBestRoundForGame(game.game, game.round);
         // Move it to the best place
-        removeGame(game.round, game.game);
         addGame(newRound, game.game);
         // Check new error value and test if it's better or worse
         double newError = getTotalError();
@@ -212,7 +194,7 @@ public class Population {
         if (g == null) {
             System.out.println("findBestRoundForGame:: Was given a null game");
         }
-        double minError = Double.MAX_VALUE;
+        int minError = Integer.MAX_VALUE;
         ArrayList<Round> minRounds = new ArrayList<>();
         for (Round r : rounds) {
             if (r == roundToSkip) continue;
@@ -244,5 +226,29 @@ public class Population {
         for (Round r : rounds) {
             System.out.println(r.description());
         }
+    }
+
+    public int checkBreakError() {
+        int error = 0;
+        for (Team t : Team.teams) {
+            Boolean homeStreak = false;
+            Boolean awayStreak = false;
+
+            for (Round r : rounds) {
+                for (Game g : r.games) {
+                    if (g.guest == t) {
+                        if (awayStreak) error++;
+                        awayStreak = true;
+                        homeStreak = false;
+                    }
+                    if (g.home == t) {
+                        if (homeStreak) error++;
+                        awayStreak = false;
+                        homeStreak = true;
+                    }
+                }
+            }
+        }
+        return error;
     }
 }

@@ -12,6 +12,8 @@ public class Round {
     private TeamCountErrors teamCountErrors;
     private final BreakErrors breakErrors;
 
+    private int breakErrors11;
+
 
     public Round() {
         games = new ArrayList<>();
@@ -21,13 +23,6 @@ public class Round {
         awayErrors = new CanPlayOnRoundErrors();
         homeErrors = new CanPlayOnRoundErrors();
         breakErrors = new BreakErrors();
-    }
-
-    public Round clone() {
-        Round output = new Round();
-
-        output.copyRoundsAndErrors(this);
-        return output;
     }
 
     public void copyRoundsAndErrors(Round other) {
@@ -42,11 +37,11 @@ public class Round {
         }
 
         // Add the games to new one
-        for (Game g : other.games) {
-            addGame(g);
-        }
         for (Game g : other.boundGames) {
             addBoundGame(g);
+        }
+        for (Game g : other.games) {
+            addGame(g);
         }
     }
 
@@ -85,6 +80,7 @@ public class Round {
     // This should only be called from Population.removeGame!
     public void removeGame(Game game) {
         if (games.remove(game) == false) {
+            System.out.println("Trying to remove a game that wasn't there!!");
             // If the game didn't exist
             return;
         }
@@ -117,7 +113,7 @@ public class Round {
             errorsByGame[i] += homeErrors.getErrorByTeam(games.get(i).home) * Constants.HOME_GAME_ERROR * Constants.HARD_ERROR;
 
             // Break errors
-            errorsByGame[i] += breakErrors.getErrorByGame(g) * Constants.BREAK_ERROR * Constants.SOFT_ERROR;
+            //errorsByGame[i] += breakErrors.getErrorByGame(g) * Constants.BREAK_ERROR * Constants.SOFT_ERROR;
         }
         return chooseGameFromErrorArray(errorsByGame);
     }
@@ -144,7 +140,8 @@ public class Round {
     }
 
     public int getBreakErrors() {
-        return breakErrors.getTotalErrors();
+        //return breakErrors.getTotalErrors();
+        return 0;
     }
 
     public int getHardErrors() {

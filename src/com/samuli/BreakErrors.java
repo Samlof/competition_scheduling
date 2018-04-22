@@ -59,7 +59,6 @@ public class BreakErrors {
 
     public void updateHome(Team t) {
         Boolean searchingForHome = false;
-        errorsByHomeTeam[t.id] = 0;
 
         int gamesBefore = findGamesBefore(t, searchingForHome);
         int gamesAfter = findGamesAfter(t, searchingForHome);
@@ -67,6 +66,9 @@ public class BreakErrors {
 
         // Handle all the different situations
 
+        if (gamesAfter + gamesBefore == 0) {
+            errorsByHomeTeam[t.id] = 0;
+        }
         // This round has no game and before or after has only 1 games
         if (thisRoundHasGame == false && gamesAfter + gamesBefore == 1) {
             errorsByHomeTeam[t.id] = 0;
@@ -134,8 +136,7 @@ public class BreakErrors {
         }
 
         // This round has a game, and there is more than 1 game after this
-        else if (gamesAfter + gamesBefore == 1) {
-            // Just update this, as the others already have it set
+        else if (gamesAfter + gamesBefore > 1) {
             errorsByHomeTeam[t.id] = 1;
         }
     }
@@ -150,77 +151,80 @@ public class BreakErrors {
 
         // Handle all the different situations
 
-        // This round has no game and before or after has only 1 games
-        if (thisRoundHasGame == false && gamesAfter + gamesBefore == 1) {
+        if (gamesAfter + gamesBefore == 0) {
             errorsByAwayTeam[t.id] = 0;
-            // Update that one game's error to 0, since it doesn't have one anymore
+        } else
+            // This round has no game and before or after has only 1 games
+            if (thisRoundHasGame == false && gamesAfter + gamesBefore == 1) {
+                errorsByAwayTeam[t.id] = 0;
+                // Update that one game's error to 0, since it doesn't have one anymore
 
-            // Search it
-            Round currRound = prevRound;
-            while (currRound != null && currRound.getBreakErrorsClass().hasHomeGame(t)) {
-                if (currRound.getBreakErrorsClass().hasAwayGame(t)) {
-                    // Found it, so update and return out
-                    currRound.getBreakErrorsClass().setAwayError(t, 0);
-                    return;
+                // Search it
+                Round currRound = prevRound;
+                while (currRound != null && currRound.getBreakErrorsClass().hasHomeGame(t)) {
+                    if (currRound.getBreakErrorsClass().hasAwayGame(t)) {
+                        // Found it, so update and return out
+                        currRound.getBreakErrorsClass().setAwayError(t, 0);
+                        return;
+                    }
+                    currRound = currRound.getBreakErrorsClass().prevRound;
                 }
-                currRound = currRound.getBreakErrorsClass().prevRound;
+
+                // Didn't find it behind, so search forward
+                currRound = nextRound;
+                while (currRound != null && currRound.getBreakErrorsClass().hasHomeGame(t)) {
+                    if (currRound.getBreakErrorsClass().hasAwayGame(t)) {
+                        // Found it, so update and return out
+                        currRound.getBreakErrorsClass().setAwayError(t, 0);
+                        return;
+                    }
+                    currRound = currRound.getBreakErrorsClass().nextRound;
+                }
+
+                // Should never get here, so print and error
+                System.out.println("BreakErrors::update trying to update for a team with nothing to update");
+            }
+            // This round has no game and before or after has more than a single
+            else if (thisRoundHasGame == false && gamesAfter + gamesBefore > 1) {
+                errorsByAwayTeam[t.id] = 0;
+                // The games before and after already have 1 as error, so don't change them
+            }
+            // This round has a game, and there is 1 game before or after this
+            else if (gamesAfter + gamesBefore == 1) {
+                // Add break error to this and that
+                errorsByAwayTeam[t.id] = 1;
+
+                // Search it
+                Round currRound = prevRound;
+                while (currRound != null && currRound.getBreakErrorsClass().hasHomeGame(t)) {
+                    if (currRound.getBreakErrorsClass().hasAwayGame(t)) {
+                        // Found it, so update and return out
+                        currRound.getBreakErrorsClass().setAwayError(t, 1);
+                        return;
+                    }
+                    currRound = currRound.getBreakErrorsClass().prevRound;
+                }
+
+                // Didn't find it behind, so search forward
+                currRound = nextRound;
+                while (currRound != null && currRound.getBreakErrorsClass().hasHomeGame(t)) {
+                    if (currRound.getBreakErrorsClass().hasAwayGame(t)) {
+                        // Found it, so update and return out
+                        currRound.getBreakErrorsClass().setAwayError(t, 1);
+                        return;
+                    }
+                    currRound = currRound.getBreakErrorsClass().nextRound;
+                }
+
+                // Should never get here, so print and error
+                System.out.println("BreakErrors::update trying to update for a team with nothing to update");
             }
 
-            // Didn't find it behind, so search forward
-            currRound = nextRound;
-            while (currRound != null && currRound.getBreakErrorsClass().hasHomeGame(t)) {
-                if (currRound.getBreakErrorsClass().hasAwayGame(t)) {
-                    // Found it, so update and return out
-                    currRound.getBreakErrorsClass().setAwayError(t, 0);
-                    return;
-                }
-                currRound = currRound.getBreakErrorsClass().nextRound;
+            // This round has a game, and there is more than 1 game after this
+            else if (gamesAfter + gamesBefore > 1) {
+                // Just update this, as the others already have it set
+                errorsByAwayTeam[t.id] = 1;
             }
-
-            // Should never get here, so print and error
-            System.out.println("BreakErrors::update trying to update for a team with nothing to update");
-        }
-        // This round has no game and before or after has more than a single
-        else if (thisRoundHasGame == false && gamesAfter + gamesBefore > 1) {
-            errorsByAwayTeam[t.id] = 0;
-            // The games before and after already have 1 as error, so don't change them
-        }
-        // This round has a game, and there is 1 game before or after this
-        else if (gamesAfter + gamesBefore == 1) {
-            // Add break error to this and that
-            errorsByAwayTeam[t.id] = 1;
-
-            // Search it
-            Round currRound = prevRound;
-            while (currRound != null && currRound.getBreakErrorsClass().hasHomeGame(t)) {
-                if (currRound.getBreakErrorsClass().hasAwayGame(t)) {
-                    // Found it, so update and return out
-                    currRound.getBreakErrorsClass().setAwayError(t, 1);
-                    return;
-                }
-                currRound = currRound.getBreakErrorsClass().prevRound;
-            }
-
-            // Didn't find it behind, so search forward
-            currRound = nextRound;
-            while (currRound != null && currRound.getBreakErrorsClass().hasHomeGame(t)) {
-                if (currRound.getBreakErrorsClass().hasAwayGame(t)) {
-                    // Found it, so update and return out
-                    currRound.getBreakErrorsClass().setAwayError(t, 1);
-                    return;
-                }
-                currRound = currRound.getBreakErrorsClass().nextRound;
-            }
-
-            // Should never get here, so print and error
-            System.out.println("BreakErrors::update trying to update for a team with nothing to update");
-        }
-
-        // This round has a game, and there is more than 1 game after this
-        else if (gamesAfter + gamesBefore == 1) {
-            // Just update this, as the others already have it set
-            errorsByAwayTeam[t.id] = 1;
-        }
     }
 
     private int findGamesBefore(Team t, boolean searchingForHome) {
@@ -282,7 +286,6 @@ public class BreakErrors {
     }
 
     public int getTotalErrors() {
-        // TODO:
         int error = 0;
         for (int i = 0; i < errorsByHomeTeam.length; i++) {
             error += errorsByHomeTeam[i];
@@ -290,5 +293,4 @@ public class BreakErrors {
         }
         return error;
     }
-
 }
